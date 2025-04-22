@@ -1,0 +1,21 @@
+{
+  "name": "jobsearch",
+  "version": "1.0.0",
+  "description": "job search",
+  "keywords": [
+    "job",
+    "vacancy",
+    "search",
+    "mern"
+  ],
+  "license": "ISC",
+  "author": "Mikhail Pisemsky <mikhailpisemsky@yandex.ru>",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
