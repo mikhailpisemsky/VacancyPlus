@@ -26,14 +26,10 @@ router.post(
             if (candidate) {
                 return res.status(400).json({ message: 'Такой пользователь уже существует' })
             }
-            if (status != "студент" || status != 'работодатель') {
-                return res.status(400).json({ message: 'Указан неверный статус. Допустимые значения: студент, работодатель' })
-            }
             const hashesPassword = await bcrypt.hash(password, 12)
             const user = new User({ email, password: hashesPassword, name, phone })
             await user.save()
             res.status(201).json({ message: 'Пользователь создан' })
-
         } catch (e) {
             res.status(500).json({message: 'Что-то пошло не так, попробуйте снова'})
         }
