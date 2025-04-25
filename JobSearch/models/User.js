@@ -1,10 +1,55 @@
-const { Schema, model } = require('pg')
+const sequelize = require('../config/db.js'); // Импортируем настроенный пул из db.js
+const bcrypt = require('bcryptjs');
 
-const schema = new Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    name: { type: String, required: true },
-    phone: { type: Number, required: true, unique: true }
-})
+const Sequelize = require('sequelize');
+const DataTypes = Sequelize.DataTypes;
 
-module.exports = model('User', schema)
+const User = sequelize.define('User', {
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+    },
+
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: { isEmail: true },
+    },
+
+    status: {
+        type: DataTypes.ENUM('student', 'employer'),
+        defaultValue: 'student',
+        allowNull: false
+    }
+},
+    {
+        hooks: {
+            beforeCreate: async (user) => {
+                if (user.password) {
+                    user.password = await bcrypt.hash(user.password, 12);
+                }
+            }
+        }
+    },
+
+    {
+        tableName: 'users',
+        timestamps: false,
+        createdAt: false,
+        validate: { len: [6] }
+    });
+
+async function testConnection() {
+    try {
+        await sequelize.authenticate();
+        console.log('Connection to PostgreSQL has been established successfully.');
+        console.log(User === sequelize.models.User); // true
+    } catch (error) {
+        console.error('Unable to connect to the PostgreSQL database:', error);
+    }
+}
+
+testConnection();
+
+module.exports = User;

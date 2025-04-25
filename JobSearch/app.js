@@ -4,11 +4,9 @@ const pool = require('./config/db');
 
 const app = express();
 
-app.use(express.json({ extended: true }))
-
 const PORT = config.get('port') || 5000
 
-app.use('/api/auth', () => { require('./routes/auth.routes') });
+app.use('/api/auth', () => { require('./routes/auth.routes.js') });
 
 async function start() {
     try {
@@ -16,7 +14,7 @@ async function start() {
         app.listen(PORT, () => {
             console.log(`App has been started on port ${PORT}...`)
         })
-    } catch(e) {
+    } catch (e) {
         console.log('Server Error', e.message)
         process.exit(1)
     }

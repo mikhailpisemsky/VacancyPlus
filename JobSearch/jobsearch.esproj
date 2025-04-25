@@ -9,7 +9,9 @@
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="db.js" />
-    <None Remove="db.sqlite" />
+    <Folder Include="client\src\pages\" />
+    <Folder Include="client\src\hooks\" />
+    <Folder Include="routes\" />
+    <Folder Include="models\" />
   </ItemGroup>
 </Project>
