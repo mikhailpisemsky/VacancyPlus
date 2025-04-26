@@ -1,4 +1,4 @@
-const sequelize = require('../config/db.js'); // Импортируем настроенный пул из db.js
+const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
 const bcrypt = require('bcryptjs');
 
 const Sequelize = require('sequelize');
@@ -9,18 +9,22 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
+        validate: { isEmail: true },
     },
 
     password: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: { isEmail: true },
+        validate: { len: [6] }
     },
 
     status: {
-        type: DataTypes.ENUM('student', 'employer'),
+        type: DataTypes.STRING,
         defaultValue: 'student',
-        allowNull: false
+        validate: {
+            isIn: [['student', 'employer']]
+        }
     }
 },
     {
@@ -37,7 +41,6 @@ const User = sequelize.define('User', {
         tableName: 'users',
         timestamps: false,
         createdAt: false,
-        validate: { len: [6] }
     });
 
 async function testConnection() {

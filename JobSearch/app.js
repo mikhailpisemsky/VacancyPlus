@@ -6,9 +6,22 @@ const app = express();
 
 const PORT = config.get('port') || 5000
 
-app.use('/api/auth', () => { require('./routes/auth.routes.js') });
+const cors = require('cors');
+app.use(express.json({ extended: true }))
 
-async function start() {
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
+
+const authRoutes = require('./routes/auth.routes');
+app.use('/api/auth', authRoutes);
+
+app.get('/api/test', (req, res) => {
+    res.json({ message: "API work!" });
+});
+
+async function start() { 
     try {
         pool.query('SELECT NOW()')
         app.listen(PORT, () => {

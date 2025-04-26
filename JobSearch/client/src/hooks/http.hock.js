@@ -17,7 +17,7 @@ export const useHttp = () => {
 
             const data = await response.json()
             if (!response.ok) {
-                throw new Error(data.message || 'Что-то пошло не так')
+                throw new Error(data.message || 'Something went wrong')
             }
 
             setLoading(false)
@@ -30,7 +30,7 @@ export const useHttp = () => {
         }
     }, [])
 
-    const cleanError = useCallback(() => setError(null), [])
+    const clearError = useCallback(() => setError(null), [])
 
-    return { loading, request, error, cleanError }
+    return { loading, request, error, clearError }
 }

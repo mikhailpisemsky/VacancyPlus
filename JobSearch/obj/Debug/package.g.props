@@ -8,7 +8,8 @@
   "vacancies",
   "job",
   "search",
-  "mern"
+  "react",
+  "nodejs"
 ]</PackageJsonKeywords>
     <PackageJsonLicense Condition="$(PackageJsonLicense) == ''">ISC</PackageJsonLicense>
     <PackageJsonAuthor Condition="$(PackageJsonAuthor) == ''">Mikhail Pisemsky &lt;mikhailpisemsky@yandex.ru&gt;</PackageJsonAuthor>
@@ -20,6 +21,7 @@
     <PackageJsonScriptsDev Condition="$(PackageJsonScriptsDev) == ''">concurrently "npm run server" "npm run client"</PackageJsonScriptsDev>
     <PackageJsonDependenciesBcryptjs Condition="$(PackageJsonDependenciesBcryptjs) == ''">^3.0.2</PackageJsonDependenciesBcryptjs>
     <PackageJsonDependenciesConfig Condition="$(PackageJsonDependenciesConfig) == ''">^3.3.12</PackageJsonDependenciesConfig>
+    <PackageJsonDependenciesCors Condition="$(PackageJsonDependenciesCors) == ''">^2.8.5</PackageJsonDependenciesCors>
     <PackageJsonDependenciesDotenv Condition="$(PackageJsonDependenciesDotenv) == ''">^16.5.0</PackageJsonDependenciesDotenv>
     <PackageJsonDependenciesExpress Condition="$(PackageJsonDependenciesExpress) == ''">^5.1.0</PackageJsonDependenciesExpress>
     <PackageJsonDependenciesExpressValidator Condition="$(PackageJsonDependenciesExpressValidator) == ''">^7.2.1</PackageJsonDependenciesExpressValidator>

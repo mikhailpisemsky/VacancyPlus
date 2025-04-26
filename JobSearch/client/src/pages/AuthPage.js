@@ -2,23 +2,22 @@ import React, { useState } from 'react'
 import { useHttp } from '../hooks/http.hock'
 
 export const AuthPage = () => {
-    const { loading, request, error, cleanError } = useHttp()
+    const { loading, request, error, clearError } = useHttp()
     const [form, setForm] = useState({
-        email: '', password: ''
+        email: '', password: '', status: "student"
     })
 
     const changeHandler = event => {
         setForm({ ...form, [event.target.name]: event.target.value })
     }
 
-
     const registerHandler = async () => {
         try {
-            cleanError()
-            const data = await request('/api/auth/register', 'POST', { ...form })
+            clearError()
+            const data = await request('http://localhost:5000/api/auth/register', 'POST', { ...form })
             console.log(data)
         } catch (e) {
-
+            console.error('CSomplete error:', e);
         }
     }
 
@@ -31,22 +30,24 @@ export const AuthPage = () => {
                         <span className="card-title center-align">Registration</span>
                         <div className="row">
                             <div className="input-field yellow=input">
-                                <input id="email" type="email" name="email" onChange={changeHandler} className="white-text" />
-                                <label htmlFor="email" className="white-text">Email</label>
+                                <input placeholder="Enter your email" id="email" type="email" name="email" onChange={changeHandler} className="white-text" />
+                                <label htmlFor="email" className="white-text active">Email</label>
                             </div>
 
                             <div className="input-field yellow=input">
-                                <input id="password" type="password" name="password" onChange={changeHandler} className="white-text" />
-                                <label htmlFor="password" className="white-text">Password</label>
-                            </div>                            
-                        </div>
+                                <input placeholder="Enter your password" id="password" type="password" name="password" onChange={changeHandler} className="white-text" />
+                                <label htmlFor="password" className="white-text active">Password</label>
+                            </div>
 
-                        <div className="row">
-                            <div className="input-field center-align white-text">
-                                <select className="browser-default blue white-text">
-                                    <option className="white-text" value="" disabled selected>Choose your status</option>
-                                    <option className="white-text" value="student">student</option>
-                                    <option className="white-text" value="employer">employer</option>
+                            <div className="input-field">
+                                <select
+                                    value={form.status}
+                                    onChange={changeHandler}
+                                    className="browser-default blue white-text"
+                                >
+                                    <option value="" disabled>Choose your status</option>
+                                    <option value="student">Student</option>
+                                    <option value="employer">Employer</option>
                                 </select>
                             </div>
                         </div>
