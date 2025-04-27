@@ -1,11 +1,24 @@
-import React, { useState } from 'react'
-import { useHttp } from '../hooks/http.hock'
+import React, { useContext, useEffect, useState } from 'react'
+import { useHttp } from '../hooks/http.hook'
+import { useMessage } from '../hooks/message.hook'
+import { AuthContext } from '../context/AuthContext'
 
 export const AuthPage = () => {
+    const auth = useContext(AuthContext)
+    const message = useMessage()
     const { loading, request, error, clearError } = useHttp()
     const [form, setForm] = useState({
         email: '', password: '', status: "student"
     })
+
+    useEffect(() => {
+        message(error)
+        clearError()
+    }, [error, message, clearError])
+
+    useEffect(() => {
+        window.M.updateTextFields()
+    }, [])
 
     const changeHandler = event => {
         setForm({ ...form, [event.target.name]: event.target.value })
@@ -13,11 +26,19 @@ export const AuthPage = () => {
 
     const registerHandler = async () => {
         try {
-            clearError()
             const data = await request('http://localhost:5000/api/auth/register', 'POST', { ...form })
-            console.log(data)
+            message(data.message)
         } catch (e) {
-            console.error('CSomplete error:', e);
+            console.error('Complete error:', e);
+        }
+    }
+
+    const loginHandler = async () => {
+        try {
+            const data = await request('http://localhost:5000/api/auth/login', 'POST', { ...form })
+            auth.login(data.token, data.userId)
+        } catch (e) {
+            console.error('Complete error:', e);
         }
     }
 
@@ -53,7 +74,7 @@ export const AuthPage = () => {
                         </div>
 
                         <div className="card-action center-align">
-                            <button className="btn white-text" style={{ marginRight: 10 }} disabled={loading}>Log in</button>
+                            <button className="btn white-text" onClick={loginHandler} style={{ marginRight: 10 }} disabled={loading}>Log in</button>
                             <button className="btn white-text" onClick={registerHandler} disabled={loading}>Sign up</button>
                         </div>                        
                     </div>

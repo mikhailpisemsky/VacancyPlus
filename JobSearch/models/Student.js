@@ -3,7 +3,13 @@ const sequelize = require('../config/db'); // Импортируем настроенный пул из db.
 const Sequelize = require('sequelize');
 const DataTypes = Sequelize.DataTypes;
 
-const User = sequelize.define('User', {
+const Student = sequelize.define('Student', {
+    studentId: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+
     email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -11,24 +17,27 @@ const User = sequelize.define('User', {
         validate: { isEmail: true },
     },
 
-    password: {
+    name: {
         type: DataTypes.STRING,
-        allowNull: false,
-        validate: { isEmail: true },
-        validate: { len: [6] }
     },
 
-    status: {
-        type: DataTypes.STRING,
-        defaultValue: 'student',
+    phone: {
+        type: DataTypes.STRING(20),
         validate: {
-            isIn: [['student', 'employer']]
+            is: /^[\+\d\s\-\(\)]{5,20}$/i
         }
-    }
-},   
+    },
 
+    resumeStatus: {
+        type: DataTypes.STRING,
+        defaultValue: 'resume not uploaded',
+        validate: {
+            isIn: [['resume not uploaded', 'resume uploaded']]
+        }
+    },
+},
     {
-        tableName: 'users',
+        tableName: 'students',
         timestamps: false,
         createdAt: false,
     });
@@ -37,7 +46,7 @@ async function testConnection() {
     try {
         await sequelize.authenticate();
         console.log('Connection to PostgreSQL has been established successfully.');
-        console.log(User === sequelize.models.User); // true
+        console.log(User === sequelize.models.Student); // true
     } catch (error) {
         console.error('Unable to connect to the PostgreSQL database:', error);
     }
@@ -45,4 +54,4 @@ async function testConnection() {
 
 testConnection();
 
-module.exports = User;
+module.exports = Student;

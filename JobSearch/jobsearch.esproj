@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="client\src\pages\" />
-    <Folder Include="client\src\hooks\" />
     <Folder Include="routes\" />
     <Folder Include="models\" />
   </ItemGroup>

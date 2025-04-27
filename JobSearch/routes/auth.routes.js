@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const config = require('config');
-const { User } = require('../models/User'); // Импорт модели User
+const User = require('../models/User'); // Импорт модели User
 const router = Router();
 
 // /api/auth/register
@@ -15,7 +15,6 @@ router.post(
     ],
     async (req, res) => {
         try {
-            console.log('Body', req.body)
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 return res.status(400).json({
@@ -67,7 +66,7 @@ router.post(
                 });
             }
 
-            const { email, password } = req.body;
+            const { email, password, status } = req.body;
 
             // Поиск пользователя через Sequelize
             const user = await User.findOne({ where: { email } });
@@ -80,6 +79,10 @@ router.post(
 
             if (!isMatch) {
                 return res.status(400).json({ message: 'Incorrect password' });
+            }
+
+            if (!(status == user.status)) {
+                return res.status(400).json({ message: 'Incorrect status' });
             }
 
             // Создание JWT токена
