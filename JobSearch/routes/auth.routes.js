@@ -4,6 +4,8 @@ const { check, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const User = require('../models/User'); // Импорт модели User
+const Student = require('../models/Student'); //Импорт модели Student
+const Employer = require('../models/Employer'); //Импорт модели Employer
 const router = Router();
 
 // /api/auth/register
@@ -40,6 +42,18 @@ router.post(
                 password: hashedPassword,
                 status
             });
+
+            if (status == "student") {
+                await Student.create({
+                    email
+                });
+            }
+
+            if (status == "employer") {
+                await Employer.create({
+                    email
+                });
+            }
 
             res.status(201).json({ message: 'User created' });
 

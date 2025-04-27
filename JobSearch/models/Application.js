@@ -38,7 +38,7 @@ async function testConnection() {
     try {
         await sequelize.authenticate();
         console.log('Connection to PostgreSQL has been established successfully.');
-        console.log(User === sequelize.models.Application); // true
+        console.log(Application == sequelize.models.Application); // true
     } catch (error) {
         console.error('Unable to connect to the PostgreSQL database:', error);
     }

@@ -9,6 +9,7 @@ const User = sequelize.define('User', {
         allowNull: false,
         unique: true,
         validate: { isEmail: true },
+        primaryKey: true,
     },
 
     password: {
@@ -37,7 +38,7 @@ async function testConnection() {
     try {
         await sequelize.authenticate();
         console.log('Connection to PostgreSQL has been established successfully.');
-        console.log(User === sequelize.models.User); // true
+        console.log(User == sequelize.models.User); // true
     } catch (error) {
         console.error('Unable to connect to the PostgreSQL database:', error);
     }
@@ -45,4 +46,4 @@ async function testConnection() {
 
 testConnection();
 
-module.exports = User;
+module.exports = User

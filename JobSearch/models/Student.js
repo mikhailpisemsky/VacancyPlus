@@ -12,9 +12,7 @@ const Student = sequelize.define('Student', {
 
     email: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        validate: { isEmail: true },
+        allowNull: true
     },
 
     name: {
@@ -46,7 +44,7 @@ async function testConnection() {
     try {
         await sequelize.authenticate();
         console.log('Connection to PostgreSQL has been established successfully.');
-        console.log(User === sequelize.models.Student); // true
+        console.log(Student == sequelize.models.Student); // true
     } catch (error) {
         console.error('Unable to connect to the PostgreSQL database:', error);
     }
@@ -54,4 +52,4 @@ async function testConnection() {
 
 testConnection();
 
-module.exports = Student;
+module.exports = Student
