@@ -1,4 +1,4 @@
-const sequelize = require('../config/db'); // ����������� ����������� ��� �� db.js
+const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
 
 const Sequelize = require('sequelize');
 const DataTypes = Sequelize.DataTypes;
@@ -37,10 +37,10 @@ const Employer = sequelize.define('Employer', {
 async function testConnection() {
     try {
         await sequelize.authenticate();
-        console.log('Connection to PostgreSQL has been established successfully.');
+        console.log('Подключение к БД PostgreSQL прошло успешно.');
         console.log(Employer == sequelize.models.Employer); // true
     } catch (error) {
-        console.error('Unable to connect to the PostgreSQL database:', error);
+        console.error('Ошибка подключения к БД PostgreSQL:', error);
     }
 }
 

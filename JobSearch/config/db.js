@@ -2,31 +2,31 @@ const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
 const sequelize = new Sequelize(
-    process.env.DB_NAME,    // ËÏˇ ·‡Á˚ ‰‡ÌÌ˚ı
-    process.env.DB_USER,    // ÔÓÎ¸ÁÓ‚‡ÚÂÎ¸
-    process.env.DB_PASSWORD, // Ô‡ÓÎ¸
+    process.env.DB_NAME,    // –∏–º—è –±–∞–∑—ã –¥–∞–Ω–Ω—ã—Ö
+    process.env.DB_USER,    // –ø–æ–ª—å–∑–æ–≤–∞—Ç–µ–ª—å
+    process.env.DB_PASSWORD, // –ø–∞—Ä–æ–ª—å
     {
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
         dialect: 'postgres',
-        dialectModule: require('pg'), // ﬂ‚ÌÓ ÛÍ‡Á˚‚‡ÂÏ ËÒÔÓÎ¸ÁÓ‚‡Ú¸ pg
+        dialectModule: require('pg'), // –Ø–≤–Ω–æ —É–∫–∞–∑—ã–≤–∞–µ–º –∏—Å–ø–æ–ª—å–∑–æ–≤–∞—Ç—å pg
         pool: {
             max: 5,
             min: 0,
             acquire: 30000,
             idle: 10000
         },
-        logging: false, // ŒÚÍÎ˛˜‡ÂÏ ÎÓ„Ë SQL-Á‡ÔÓÒÓ‚ (ÏÓÊÌÓ ‚ÍÎ˛˜ËÚ¸ ‰Îˇ ‰Â·‡„‡)
+        logging: false, // –û—Ç–∫–ª—é—á–∞–µ–º –ª–æ–≥–∏ SQL-–∑–∞–ø—Ä–æ—Å–æ–≤ (–º–æ–∂–Ω–æ –≤–∫–ª—é—á–∏—Ç—å –¥–ª—è –¥–µ–±–∞–≥–∞)
     }
 );
 
-// œÓ‚ÂÍ‡ ÔÓ‰ÍÎ˛˜ÂÌËˇ (ÓÔˆËÓÌ‡Î¸ÌÓ)
+// –ü—Ä–æ–≤–µ—Ä–∫–∞ –ø–æ–¥–∫–ª—é—á–µ–Ω–∏—è (–æ–ø—Ü–∏–æ–Ω–∞–ª—å–Ω–æ)
 sequelize.authenticate()
-    .then(() => console.log('Database connected successfully'))
-    .catch(err => console.error('Unable to connect to the database:', err));
+    .then(() => console.log('–ü–æ–¥–∫–ª—é—á–µ–Ω–∏–µ –∫ –ë–î –ø—Ä–æ—à–ª–æ —É—Å–ø–µ—à–Ω–æ.'))
+    .catch(err => console.error('–û—à–∏–±–∫–∞ –ø–æ–¥–∫–ª—é—á–µ–Ω–∏—è –∫ –ë–î:', err));
 
 sequelize.sync()
-    .then(() => console.log('Tables created successfully'))
-    .catch(err => console.error('Error creating tables:', err));
+    .then(() => console.log('–¢–∞–±–ª–∏—Ü–∞ —Å–æ–∑–¥–∞–Ω–∞ —É—Å–ø–µ—à–µ–æ'))
+    .catch(err => console.error('–û—à–∏–±–∫–∞ —Å–æ–∑–¥–∞–Ω–∏—è —Ç–∞–±–ª–∏—Ü—ã:', err));
 
 module.exports = sequelize;

@@ -3,17 +3,17 @@ const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const config = require('config');
-const User = require('../models/User'); // ������ ������ User
-const Student = require('../models/Student'); //������ ������ Student
-const Employer = require('../models/Employer'); //������ ������ Employer
+const User = require('../models/User'); // Импорт модели User
+const Student = require('../models/Student'); //Импорт модели Student
+const Employer = require('../models/Employer'); //Импорт модели Employer
 const router = Router();
 
 // /api/auth/register
 router.post(
     '/register',
     [
-        check('email', 'Incorrect email').isEmail(),
-        check('password', 'Minimum password length 6 characters').isLength({ min: 6 })
+        check('email', 'Неверный email').isEmail(),
+        check('password', 'Минимальная длина пароля: 6 символов').isLength({ min: 6 })
     ],
     async (req, res) => {
         try {
@@ -21,22 +21,26 @@ router.post(
             if (!errors.isEmpty()) {
                 return res.status(400).json({
                     errors: errors.array(),
-                    message: 'Incorrect data during registration'
+                    message: 'Неверные данные при регистрации'
                 });
             }
 
             const { email, password, status } = req.body;
 
-            // ����� ������������ � �������������� Sequelize
+            // Поиск пользователя с использованием Sequelize
             const candidate = await User.findOne({ where: { email } });
 
             if (candidate) {
-                return res.status(400).json({ message: 'Such a user already exists' });
+                return res.status(400).json({ message: 'Такой пользователь уже существует' });
+            }
+
+            if(!(status in ['student',  'employer'])) {
+                return res.status(400).json({ message: 'Вы не выбрали статус' });
             }
 
             const hashedPassword = await bcrypt.hash(password, 12);
 
-            // �������� ������������ ����� Sequelize
+            // Создание пользователя через Sequelize
             await User.create({
                 email,
                 password: hashedPassword,
@@ -55,11 +59,11 @@ router.post(
                 });
             }
 
-            res.status(201).json({ message: 'User created' });
+            res.status(201).json({ message: 'Пользователь создан' });
 
         } catch (e) {
-            console.error('Registration error:', e);
-            res.status(500).json({ message: 'Something went wrong, try again' });
+            console.error('Ошибка при регистрации:', e);
+            res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
         }
     }
 );
@@ -67,8 +71,8 @@ router.post(
 router.post(
     '/login',
     [
-        check('email', 'Enter a valid email').normalizeEmail().isEmail(),
-        check('password', 'Enter your password').exists()
+        check('email', 'Неверный email').normalizeEmail().isEmail(),
+        check('password', 'Неверный пароль').exists()
     ],
     async (req, res) => {
         try {
@@ -76,41 +80,41 @@ router.post(
             if (!errors.isEmpty()) {
                 return res.status(400).json({
                     errors: errors.array(),
-                    message: 'Incorrect login information'
+                    message: 'Неправильные данные при авторизации'
                 });
             }
 
             const { email, password, status } = req.body;
 
-            // ����� ������������ ����� Sequelize
+            // Поиск пользователя через Sequelize
             const user = await User.findOne({ where: { email } });
 
             if (!user) {
-                return res.status(400).json({ message: 'User not found' });
+                return res.status(400).json({ message: 'Пользователь не найден' });
             }
 
             const isMatch = await bcrypt.compare(password, user.password);
 
             if (!isMatch) {
-                return res.status(400).json({ message: 'Incorrect password' });
+                return res.status(400).json({ message: 'Пользователь не найден' });
             }
 
-            if (!(status == user.status)) {
-                return res.status(400).json({ message: 'Incorrect status' });
+            if (status != user.status) {
+                return res.status(400).json({ message: 'Пользователь не найден' });
             }
 
-            // �������� JWT ������
+            // Создание JWT токена
             const token = jwt.sign(
-                { userId: user.id },
+                { userId: user.id, email: user.email },
                 config.get('jwtSecret'),
                 { expiresIn: '1h' }
             );
 
-            res.json({ token, userId: user.id });
+            res.json({ token, userId: user.id, userStatus: status });
 
         } catch (e) {
-            console.error('Authorization error:', e);
-            res.status(500).json({ message: 'Something went wrong, try again' });
+            console.error('Ошибка авторизации:', e);
+            res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
         }
     }
 );

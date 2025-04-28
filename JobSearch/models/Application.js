@@ -1,4 +1,4 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
+const sequelize = require('../config/db'); // РРјРїРѕСЂС‚РёСЂСѓРµРј РЅР°СЃС‚СЂРѕРµРЅРЅС‹Р№ РїСѓР» РёР· db.js
 
 const Sequelize = require('sequelize');
 const DataTypes = Sequelize.DataTypes;
@@ -25,7 +25,7 @@ const Application = sequelize.define('Application', {
 
     createdAt: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW, // Автоматическая установка времени создания
+        defaultValue: DataTypes.NOW, // РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ СѓСЃС‚Р°РЅРѕРІРєР° РІСЂРµРјРµРЅРё СЃРѕР·РґР°РЅРёСЏ
         allowNull: false
     },
 },
@@ -37,10 +37,10 @@ const Application = sequelize.define('Application', {
 async function testConnection() {
     try {
         await sequelize.authenticate();
-        console.log('Connection to PostgreSQL has been established successfully.');
+        console.log('РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р‘Р” PostgreSQL РїСЂРѕС€Р»Рѕ СѓСЃРїРµС€РЅРѕ.');
         console.log(Application == sequelize.models.Application); // true
     } catch (error) {
-        console.error('Unable to connect to the PostgreSQL database:', error);
+        console.error('РћС€РёР±РєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє Р‘Р” PostgreSQL:', error);
     }
 }
 
