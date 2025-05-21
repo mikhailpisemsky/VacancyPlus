@@ -17,7 +17,7 @@ router.get('/', auth, async (req, res) => {
 
         res.json(student);
     } catch (e) {
-        res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
+        return res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
     }
 });
 
@@ -34,9 +34,9 @@ router.post('/setting', auth, async (req, res) => {
             }
         );
 
-        res.status(201).json({ message: 'Данные успешно обновлены' });
+        return res.status(201).json({ message: 'Данные успешно обновлены' });
     } catch (e) {
-        res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
+        return res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
     }
 });
 

@@ -59,11 +59,11 @@ router.post(
                 });
             }
 
-            res.status(201).json({ message: 'Пользователь создан' });
+            return res.status(201).json({ message: 'Пользователь создан' });
 
         } catch (e) {
             console.error('Ошибка при регистрации:', e);
-            res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
+            return res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
         }
     }
 );
@@ -107,14 +107,14 @@ router.post(
             const token = jwt.sign(
                 { userId: user.id, email: user.email },
                 config.get('jwtSecret'),
-                { expiresIn: '1h' }
+                { expiresIn: '5h' }
             );
 
             res.json({ token, userId: user.id, userStatus: status });
 
         } catch (e) {
             console.error('Ошибка авторизации:', e);
-            res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
+            return res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
         }
     }
 );

@@ -80,7 +80,7 @@ export const AuthPage = () => {
                                     value={form.status}
                                     className="browser-default blue white-text"
                                 >
-                                    <option value="" disabled selected>Укажите статус</option>
+                                    <option value="" disabled>Укажите статус</option>
                                     <option value="student">Студент</option>
                                     <option value="employer">Работодатель</option>
                                 </select>
