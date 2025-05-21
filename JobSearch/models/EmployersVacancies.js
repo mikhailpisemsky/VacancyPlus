@@ -5,7 +5,8 @@ const DataTypes = Sequelize.DataTypes;
 
 const EmployersVacancies = sequelize.define('EmployersVacancies', {
     vacancyId: {
-        type: DataTypes.type.
+        type: DataTypes.INTEGER,
+        allowNull: false,
     },
 
     employerId: {

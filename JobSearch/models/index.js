@@ -1,4 +1,4 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
+const sequelize = require('../config/db');
 
 const setupAssociations = () => {
     const {
@@ -16,30 +16,128 @@ const setupAssociations = () => {
         Resume
     } = sequelize.models;
 
-    // Связи пользователей
-    User.belongsTo(Student, { foreignKey: 'email', targetKey: 'email' });
-    User.belongsTo(Employer, { foreignKey: 'email', targetKey: 'email' });
+    // Проверка наличия всех моделей перед установкой связей
+    if (!User || !Student || !Employer || !Position || !Vacancy ||
+        !Skill || !StudentSkill || !RequiredSkill || !Application ||
+        !StudentApplication || !EmployerVacancy || !Resume) {
+        throw new Error('Не все модели были правильно инициализированы');
+    }
 
-    // Связи студентов
-    Student.hasOne(Resume, { foreignKey: 'studentId' });
-    Student.hasMany(StudentSkill, { foreignKey: 'studentId' });
-    Student.hasMany(StudentApplication, { foreignKey: 'studentId' });
+    try {
+        // 1. Связи пользователей (User)
+        User.belongsTo(Student, {
+            foreignKey: 'email',
+            targetKey: 'email',
+            as: 'studentData',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
+        });
 
-    // Связи работодателей
-    Employer.hasMany(EmployerVacancy, { foreignKey: 'employerId' });
+        User.belongsTo(Employer, {
+            foreignKey: 'email',
+            targetKey: 'email',
+            as: 'employerData',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
+        });
 
-    // Связи вакансий
-    Vacancy.belongsTo(Position, { foreignKey: 'positionId' });
-    Vacancy.hasMany(RequiredSkill, { foreignKey: 'vacancyId' });
-    Vacancy.hasMany(EmployerVacancy, { foreignKey: 'vacancyId' });
-    Vacancy.hasMany(Application, { foreignKey: 'vacancyId' });
+        // 2. Связи студентов (Student)
+        Student.hasOne(Resume, {
+            foreignKey: 'studentId',
+            as: 'resume',
+            onDelete: 'CASCADE'
+        });
 
-    // Связи навыков
-    Skill.hasMany(StudentSkill, { foreignKey: 'skillId' });
-    Skill.hasMany(RequiredSkill, { foreignKey: 'skillId' });
+        Student.hasMany(StudentSkill, {
+            foreignKey: 'studentId',
+            as: 'skills',
+            onDelete: 'CASCADE'
+        });
 
-    // Связи заявок
-    Application.hasOne(StudentApplication, { foreignKey: 'applicationId' });
+        Student.hasMany(StudentApplication, {
+            foreignKey: 'studentId',
+            as: 'applications',
+            onDelete: 'CASCADE'
+        });
+
+        // 3. Связи работодателей (Employer)
+        Employer.hasMany(EmployerVacancy, {
+            foreignKey: 'employerId',
+            as: 'postedVacancies',
+            onDelete: 'CASCADE'
+        });
+
+        // 4. Связи вакансий (Vacancy)
+        Vacancy.belongsTo(Position, {
+            foreignKey: 'positionId',
+            as: 'position',
+            onDelete: 'RESTRICT' // Не удаляем позицию при удалении вакансии
+        });
+
+        Vacancy.hasMany(RequiredSkill, {
+            foreignKey: 'vacancyId',
+            as: 'requiredSkills',
+            onDelete: 'CASCADE'
+        });
+
+        Vacancy.hasMany(EmployerVacancy, {
+            foreignKey: 'vacancyId',
+            as: 'vacancyOwners',
+            onDelete: 'CASCADE'
+        });
+
+        Vacancy.hasMany(Application, {
+            foreignKey: 'vacancyId',
+            as: 'jobApplications',
+            onDelete: 'CASCADE'
+        });
+
+        // 5. Связи навыков (Skill)
+        Skill.hasMany(StudentSkill, {
+            foreignKey: 'skillId',
+            as: 'studentAssociations',
+            onDelete: 'CASCADE'
+        });
+
+        Skill.hasMany(RequiredSkill, {
+            foreignKey: 'skillId',
+            as: 'vacancyRequirements',
+            onDelete: 'CASCADE'
+        });
+
+        // 6. Связи заявок (Application)
+        Application.belongsTo(Student, {
+            through: StudentApplication,
+            foreignKey: 'applicationId',
+            as: 'applicant',
+            onDelete: 'CASCADE'
+        });
+
+        console.log('Все ассоциации успешно установлены');
+    } catch (error) {
+        console.error('Ошибка при установке ассоциаций:', error);
+        throw error;
+    }
 };
 
-setupAssociations();
+// Проверяем подключение перед установкой ассоциаций
+async function initializeDatabase() {
+    try {
+        await sequelize.authenticate();
+        console.log('Подключение к БД успешно установлено');
+
+        // Синхронизация моделей (опционально)
+        await sequelize.sync({ alter: true }); // Используйте { force: true } только для разработки!
+        console.log('Модели синхронизированы');
+
+        // Устанавливаем ассоциации
+        setupAssociations();
+    } catch (error) {
+        console.error('Ошибка инициализации БД:', error);
+        process.exit(1); // Завершаем процесс с ошибкой
+    }
+}
+
+initializeDatabase();
+
+module.exports = setupAssociations;

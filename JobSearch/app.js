@@ -20,8 +20,10 @@ const settingStudent = require('./routes/settingStudent.routes')
 app.use('/api/student', settingStudent);
 const settingEmployer = require('./routes/settingEmployer.routes')
 app.use('/api/employer', settingEmployer);
-const positionRoutes = require('./routes/position.routes')
-app.use('/api/position', positionRoutes)
+const vacanciRoutes = require('./routes/vacancy.routes')
+app.use('/api/vacancies', vacanciRoutes)
+const empVacanciRoutes = require('./routes/employerVacancies.routes')
+app.use('/api/empvacancies', empVacanciRoutes)
 
 app.get('/api/test', (req, res) => {
     res.json({ message: "API работает!" });

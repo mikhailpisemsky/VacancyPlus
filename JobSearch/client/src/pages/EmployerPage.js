@@ -90,12 +90,12 @@ export const EmployerPage = () => {
                     </div>
                     <div className="card-action">
                         <button
-                            className="btn waves-effect waves-light"
+                            className="btn waves-effect waves-light white-text"
                             onClick={submitHandler}
                             disabled={loading}
                         >
                             {loading ? 'Сохранение...' : 'Сохранить'}
-                        </button>
+                        </button>                        
                     </div>
                 </div>
             </div>

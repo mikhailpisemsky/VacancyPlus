@@ -13,6 +13,19 @@ const Vacancy = sequelize.define('Vacancy', {
     vacancyType: {
         type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+            isIn: [
+                [
+                    'полная занятость',
+                    'частичная занятость',
+                    'удалённая работа',
+                    'ассистент преподавателя',
+                    'помощь в административных отделах',
+                    'участие в исследовательских проектах',
+                    'стажировка в партнёрских организациях'
+                ]
+            ]
+        }
     },
 
     positionId: {
@@ -40,7 +53,7 @@ const Vacancy = sequelize.define('Vacancy', {
     },
 },
     {
-        tableName: 'vacancyes',
+        tableName: 'vacancies',
         timestamps: true,
     });
 
@@ -48,7 +61,7 @@ async function testConnection() {
     try {
         await sequelize.authenticate();
         console.log('Подключение к БД PostgreSQL прошло успешно.');
-        console.log(Vacancy == sequelize.models.Vacancy); // true
+        console.log(Vacancy == sequelize.models.Vacancy);
     } catch (error) {
         console.error('Ошибка подключения к БД PostgreSQL:', error);
     }
