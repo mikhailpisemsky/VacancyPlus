@@ -32,21 +32,17 @@ app.get('/api/test', (req, res) => {
 
 const db = require('./models/index');
 
-async function start() { 
+const start = async () => {
     try {
         await db.sequelize.authenticate();
-        console.log('Connection has been established successfully.');
-
-        // Используйте { alter: true } только для разработки!
-        await db.sequelize.sync({ alter: true });
+        console.log('Подключение к БД успешно');
 
         app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
+            console.log(`Сервер запущен на порту ${PORT}`);
         });
     } catch (error) {
-        console.error('Unable to start server:', error);
-        process.exit(1);
+        console.error('Ошибка запуска:', error);
     }
-}
+};
 
-start()
+start();

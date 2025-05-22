@@ -1,9 +1,4 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
-
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
-
-module.exports = (sequlize, DataTypes) => {
+module.exports = (sequelize, DataTypes) => {
     const Student = sequelize.define('Student', {
         studentId: {
             type: DataTypes.INTEGER,
@@ -12,8 +7,10 @@ module.exports = (sequlize, DataTypes) => {
         },
 
         email: {
-            type: DataTypes.STRING,
-            allowNull: true
+            type: DataTypes.STRING(255),
+            allowNull: true,
+            unique: true,
+            validate: { isEmail: true }
         },
 
         name: {
@@ -21,14 +18,14 @@ module.exports = (sequlize, DataTypes) => {
         },
 
         phone: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.STRING(255),
             validate: {
                 is: /^[\+\d\s\-\(\)]{5,20}$/i
             }
         },
 
         resumeStatus: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(255),
             defaultValue: 'resume not uploaded',
             validate: {
                 isIn: [['resume not uploaded', 'resume uploaded']]
@@ -38,7 +35,6 @@ module.exports = (sequlize, DataTypes) => {
         {
             tableName: 'students',
             timestamps: false,
-            createdAt: false,
         });
 
     Student.associate = (models) => {

@@ -1,13 +1,13 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
-
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
-
 module.exports = (sequelize, DataTypes) => {
     const Resume = sequelize.define('Resume', {
         studentId: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            references: {
+                model: 'students', // Убедитесь, что имя таблицы в нижнем регистре
+                key: 'studentId'
+            },
+            onDelete: 'CASCADE'
         },
 
         vacancyDescription: {

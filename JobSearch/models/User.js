@@ -1,8 +1,3 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
-
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
-
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         email: {
@@ -16,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
         password: {
             type: DataTypes.STRING,
             allowNull: false,
-            validate: { isEmail: true },
             validate: { len: [6] }
         },
 
@@ -32,22 +26,21 @@ module.exports = (sequelize, DataTypes) => {
         {
             tableName: 'users',
             timestamps: false,
-            createdAt: false,
         });
 
     User.associate = (models) => {
-        User.belongsTo(models.Student, {
+        User.hasOne(models.Student, {
             foreignKey: 'email',
-            targetKey: 'email',
-            as: 'studentData',
+            sourceKey: 'email',
+            as: 'student',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         });
 
-        User.belongsTo(models.Employer, {
+        User.hasOne(models.Employer, {
             foreignKey: 'email',
-            targetKey: 'email',
-            as: 'employerData',
+            sourceKey: 'email',
+            as: 'employer',
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         });

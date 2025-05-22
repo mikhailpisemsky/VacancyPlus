@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const CreateVacancyPage = () => {
     const message = useMessage();
+    const auth = useContext(AuthContext)
     const { loading, request, error, clearError } = useHttp();
     const { token, logout } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -14,6 +15,8 @@ export const CreateVacancyPage = () => {
         vacancyType: '',
         positionName: '',
         companyName: '',
+        min_salary: 0,
+        max_salary: 0,
         vacancyDescription: ''
     });
 
@@ -44,7 +47,11 @@ export const CreateVacancyPage = () => {
 
     // Обработчик изменения полей формы
     const changeHandler = event => {
-        setForm({ ...form, [event.target.name]: event.target.value });
+        const value = event.target.type === 'number'
+            ? event.target.valueAsNumber || ''
+            : event.target.value;
+
+        setForm({ ...form, [event.target.name]: value });
     };
 
     // Обработчик отправки формы
@@ -55,14 +62,32 @@ export const CreateVacancyPage = () => {
             // Валидация перед отправкой
             if (!form.vacancyType || !form.companyName || !form.positionName || !form.vacancyDescription) {
                 return M.toast({ html: 'Все поля обязательны для заполнения', classes: 'red' });
+            }            
+
+            if (form.min_salary && Number(form.min_salary) < 0) {
+                return M.toast({ html: 'Минимальная зарплата должна быть положительным числом', classes: 'red' });
+            }
+
+            if (form.max_salary && Number(form.max_salary) < 0) {
+                return M.toast({ html: 'Максимальная зарплата должна быть положительным числом', classes: 'red' });
+            }
+
+            if (form.min_salary && form.max_salary && Number(form.min_salary) > Number(form.max_salary)) {
+                return M.toast({ html: 'Минимальная зарплата не может быть больше максимальной', classes: 'red' });
             }
 
             if (form.vacancyDescription.length < 10) {
                 return M.toast({ html: 'Описание должно содержать минимум 10 символов', classes: 'red' });
             }
 
-            const data = await request('http://localhost:5000/api/vacancies/add', 'POST', { ...form }, {
-                Authorization: `Bearer ${token}`
+            const dataToSend = {
+                ...form,
+                min_salary: Number(form.min_salary),
+                max_salary: Number(form.max_salary)
+            };
+
+            const data = await request('http://localhost:5000/api/vacancies/add', 'POST', dataToSend, {
+                Authorization: `Bearer ${auth.token}`
             });
 
             M.toast({ html: 'Вакансия успешно создана!', classes: 'green' });
@@ -70,6 +95,8 @@ export const CreateVacancyPage = () => {
                 vacancyType: '',
                 positionName: '',
                 companyName: '',
+                min_salary: 0,
+                max_salary: 0,
                 vacancyDescription: ''
             });
             message(data.message);
@@ -116,6 +143,32 @@ export const CreateVacancyPage = () => {
                                     className="white-text"
                                 />
                                 <label htmlFor="companyName" className="white-text active">Название компании</label>
+                            </div>
+
+                            <div className="input-field col s12">
+                                <input
+                                    placeholder="Укажите минимальную зарплату"
+                                    id="min_salary"
+                                    type="number"
+                                    name="min_salary"
+                                    value={form.min_salary}
+                                    onChange={changeHandler}
+                                    className="white-text"
+                                />
+                                <label htmlFor="min_salary" className="white-text active">Минимальная зарплата</label>
+                            </div>
+
+                            <div className="input-field col s12">
+                                <input
+                                    placeholder="Укажите максимальну зарплату"
+                                    id="max_salary"
+                                    type="number"
+                                    name="max_salary"
+                                    value={form.max_salary}
+                                    onChange={changeHandler}
+                                    className="white-text"
+                                />
+                                <label htmlFor="max_salary" className="white-text active">Максимальная зарплата</label>
                             </div>
 
                             {/* Поле описания вакансии */}

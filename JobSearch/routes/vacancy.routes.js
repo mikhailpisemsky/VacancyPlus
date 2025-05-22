@@ -25,7 +25,13 @@ const vacancyValidation = [
 ];
 
 router.post('/add', auth, vacancyValidation, async (req, res) => {
-    // Проверка валидации
+    console.log('User making request:', req.user);
+    console.log('Request body:', req.body);
+    // Проверка что пользователь работодатель
+    if (req.user.status !== 'employer') {
+        return res.status(403).json({ message: 'Только работодатели могут создавать вакансии' });
+    }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
@@ -34,24 +40,17 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
         });
     }
 
-    const { positionName, vacancyType, companyName, vacancyDescription } = req.body;
+    const { positionName, vacancyType, companyName, min_salary, max_salary, vacancyDescription } = req.body;
     const employerId = req.user.userId;
 
-    // Проверка подключения к БД
-    if (!sequelize || !sequelize.authenticate) {
-        return res.status(500).json({ message: 'Ошибка подключения к базе данных' });
-    }
+    // Нормализация зарплат
+    const minSalary = min_salary !== undefined ? Number(min_salary) : null;
+    const maxSalary = max_salary !== undefined ? Number(max_salary) : null;
 
     let transaction;
     try {
-        // Проверяем соединение перед созданием транзакции
         await sequelize.authenticate();
-
-        // Создаем транзакцию
         transaction = await sequelize.transaction();
-        if (!transaction || typeof transaction.rollback !== 'function') {
-            throw new Error('Не удалось создать транзакцию');
-        }
 
         // 1. Находим или создаем позицию
         const [position] = await NamePosition.findOrCreate({
@@ -61,9 +60,7 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
                     sequelize.fn('lower', positionName)
                 )
             },
-            defaults: {
-                position: positionName.trim()
-            },
+            defaults: { position: positionName.trim() },
             transaction
         });
 
@@ -71,8 +68,10 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
         const vacancy = await Vacancy.create({
             vacancyType,
             positionId: position.positionId,
-            companyName,
-            vacancyDescription,
+            companyName: companyName.trim(),
+            min_salary: minSalary,
+            max_salary: maxSalary,
+            vacancyDescription: vacancyDescription.trim(),
             vacancyStatus: 'создана'
         }, { transaction });
 
@@ -82,42 +81,24 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
             employerId
         }, { transaction });
 
-        // Фиксируем транзакцию
         await transaction.commit();
 
         return res.status(201).json({
             message: 'Вакансия успешно создана',
-            vacancyId: vacancy.vacancyId,
-            positionId: position.positionId,
-            positionCreated: position._options.isNewRecord
+            vacancyId: vacancy.vacancyId
         });
 
     } catch (error) {
-        // Безопасный откат транзакции
-        if (transaction && typeof transaction.rollback === 'function') {
-            try {
-                await transaction.rollback();
-            } catch (rollbackError) {
-                console.error('Ошибка при откате транзакции:', rollbackError);
-            }
-        }
+        if (transaction) await transaction.rollback();
 
-        console.error('Ошибка при создании вакансии:', error);
+        console.error('Ошибка:', error);
 
         if (error.name === 'SequelizeForeignKeyConstraintError') {
-            return res.status(400).json({
-                message: 'Указанный работодатель не существует'
-            });
-        }
-
-        if (error.message.includes('транзакция')) {
-            return res.status(500).json({
-                message: 'Ошибка при работе с базой данных'
-            });
+            return res.status(400).json({ message: 'Ошибка связей данных' });
         }
 
         return res.status(500).json({
-            message: 'Ошибка сервера при создании вакансии',
+            message: 'Ошибка сервера',
             error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }

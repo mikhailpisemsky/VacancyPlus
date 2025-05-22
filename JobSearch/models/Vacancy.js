@@ -1,9 +1,3 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
-
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
-
-
 module.exports = (sequelize, DataTypes) => {
     const Vacancy = sequelize.define('Vacancy', {
         vacancyId: {
@@ -32,12 +26,24 @@ module.exports = (sequelize, DataTypes) => {
 
         positionId: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: false
         },
 
         companyName: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+
+        min_salary: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+
+        max_salary: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
         },
 
         vacancyDescription: {
@@ -71,7 +77,7 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'RESTRICT' // Не удаляем позицию при удалении вакансии
         });
 
-        Vacancy.hasMany(models.RequiredSkill, {
+        Vacancy.hasMany(models.NecessarySkill, {
             foreignKey: 'vacancyId',
             as: 'requiredSkills',
             onDelete: 'CASCADE'

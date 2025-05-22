@@ -1,8 +1,3 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
-
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
-
 module.exports = (sequelize, DataTypes) => {
     const Application = sequelize.define('Application', {
         applicationId: {
@@ -36,11 +31,15 @@ module.exports = (sequelize, DataTypes) => {
         });
 
     Application.associate = (models) => {
-        Application.belongsTo(models.Student, {
+        Application.belongsTo(models.Vacancy, {
+            foreignKey: 'vacancyId',
+            as: 'vacancy'
+        });
+
+        Application.belongsToMany(models.Student, {
             through: models.StudentApplication,
             foreignKey: 'applicationId',
-            as: 'applicant',
-            onDelete: 'CASCADE'
+            as: 'applicants'
         });
     };
 

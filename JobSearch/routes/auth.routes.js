@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const db = require('../models');
 const User = db.User;
+const sequelize = require('../config/db');
 const Student = db.Student; //Импорт модели Student
 const Employer = db.Employer; //Импорт модели Employer
 const router = Router();
@@ -29,24 +30,27 @@ router.post(
             const { email, password, status } = req.body;
 
             // Поиск пользователя с использованием Sequelize
-            const candidate = await User.findOne({ where: { email } });
+            const candidate = await User.findOne({
+                where: sequelize.where(
+                    sequelize.fn('lower', sequelize.col('email')),
+                    sequelize.fn('lower', email)
+                )
+            });
 
             if (candidate) {
                 return res.status(400).json({ message: 'Такой пользователь уже существует' });
             }
 
-            if(!(status in ['student',  'employer'])) {
-                return res.status(400).json({ message: 'Вы не выбрали статус' });
-            }
-
             const hashedPassword = await bcrypt.hash(password, 12);
 
             // Создание пользователя через Sequelize
-            await User.create({
-                email,
+            const newUser = await User.create({
+                email: email.toLowerCase().trim(),
                 password: hashedPassword,
                 status
             });
+
+            console.log('Created user:', newUser.toJSON());
 
             if (status == "student") {
                 await Student.create({
@@ -88,20 +92,31 @@ router.post(
             const { email, password, status } = req.body;
 
             // Поиск пользователя через Sequelize
-            const user = await User.findOne({ where: { email } });
+            const user = await User.findOne({
+                where: sequelize.where(
+                    sequelize.fn('lower', sequelize.col('email')),
+                    sequelize.fn('lower', email)
+                )
+            });
 
             if (!user) {
                 return res.status(400).json({ message: 'Пользователь не найден' });
             }
 
-            const isMatch = await bcrypt.compare(password, user.password);
+            console.log('Input password:', password);
+            console.log('Stored hash:', user.password);
 
+            const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(400).json({ message: 'Пользователь не найден' });
+                return res.status(400).json({ message: 'Неверный пароль' });
             }
 
-            if (status != user.status) {
-                return res.status(400).json({ message: 'Пользователь не найден' });
+            console.log('Input password:', password);
+            console.log('Stored hash:', user.password);
+            console.log('Comparison result:', isMatch);
+
+            if (status !== user.status) {
+                return res.status(400).json({ message: 'Неверный тип аккаунта' });
             }
 
             // Создание JWT токена

@@ -1,8 +1,3 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
-
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
-
 module.exports = (sequelize, DataTypes) => {
     const Skill = sequelize.define('Skill', {
         skillId: {
@@ -30,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'CASCADE'
         });
 
-        Skill.hasMany(models.RequiredSkill, {
+        Skill.hasMany(models.NecessarySkill, {
             foreignKey: 'skillId',
             as: 'vacancyRequirements',
             onDelete: 'CASCADE'

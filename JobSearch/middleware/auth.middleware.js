@@ -15,7 +15,12 @@ module.exports = (req, res, next) => {
 
         const decoded = jwt.verify(token, config.get('jwtSecret'));
 
-        req.user = decoded
+        req.user = {
+            userId: decoded.userId,
+            email: decoded.email,
+            status: decoded.status
+        };
+
 
         next();
 

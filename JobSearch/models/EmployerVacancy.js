@@ -1,20 +1,21 @@
 module.exports = (sequelize, DataTypes) => {
-    const StudentApplication = sequelize.define('StudentApplication', {
-        applicationId: {
+    const EmployerVacancy = sequelize.define('EmployerVacancy', {
+        vacancyId: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
 
-        studentId: {
+        employerId: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
     },
         {
-            tableName: 'students_application',
+            tableName: 'employers_vacancies',
             timestamps: false,
-            createdAt: false,
+            freezeTableName: true,
+            underscored: true
         });
 
-    return StudentApplication;
+    return EmployerVacancy;
 };

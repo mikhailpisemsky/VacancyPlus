@@ -1,8 +1,3 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
-
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
-
 module.exports = (sequelize, DataTypes) => {
     const Employer = sequelize.define('Employer', {
         employerId: {
@@ -15,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
-            validate: { isEmail: true },
+            validate: { isEmail: true }
         },
 
         name: {
@@ -32,7 +27,6 @@ module.exports = (sequelize, DataTypes) => {
         {
             tableName: 'employers',
             timestamps: false,
-            createdAt: false,
         });
 
     Employer.associate = (models) => {

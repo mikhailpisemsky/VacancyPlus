@@ -1,25 +1,19 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
-
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
-
 module.exports = (sequelize, DataTypes) => {
-    const RequiredSkill = sequelize.define('RequiredSkill', {
+    const NecessarySkill = sequelize.define('NecessarySkill', {
         vacancyId: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: false
         },
 
         skillId: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: false
         },
     },
         {
             tableName: 'necessary_skills',
-            timestamps: false,
-            createdAt: false,
+            timestamps: false
         });
 
-    return RequiredSkill;
+    return NecessarySkill;
 };

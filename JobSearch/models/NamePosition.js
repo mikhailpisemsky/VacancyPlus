@@ -1,8 +1,3 @@
-const sequelize = require('../config/db'); // Импортируем настроенный пул из db.js
-
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
-
 module.exports = (sequelize, DataTypes) => {
     const NamePosition = sequelize.define('NamePosition', {
         positionId: {
@@ -20,7 +15,6 @@ module.exports = (sequelize, DataTypes) => {
         {
             tableName: 'positions',
             timestamps: false,
-            createdAt: false,
         });
 
     return NamePosition;
