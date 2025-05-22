@@ -1,5 +1,15 @@
 module.exports = (sequelize, DataTypes) => {
     const Employer = sequelize.define('Employer', {
+
+        userId: { 
+            type: DataTypes.INTEGER,
+            unique: true,
+            references: {
+                model: 'users',
+                key: 'id'
+            }
+        },
+
         employerId: {
             type: DataTypes.INTEGER,
             autoIncrement: true,

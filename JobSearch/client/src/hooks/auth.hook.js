@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 const storageName = 'userData'; // Исправляем опечатку в названии переменной
 
@@ -9,13 +9,17 @@ export const useAuth = () => {
     const [userId, setUserId] = useState(null);
     const [userStatus, setUserStatus] = useState(null);
 
+    const logout = useCallback(() => {
+        setToken(null);
+        setUserId(null);
+        setUserStatus(null);
+        localStorage.removeItem(storageName);
+    }, []);
+
     const login = useCallback((jwtToken, id = null, status = null) => {
         try {
-            // Декодируем токен
-            const decoded = jwt_decode(jwtToken);
-
-            // Проверяем данные в токене
-            const verifiedUserId = decoded?.userId || id;
+            const decoded = jwtDecode(jwtToken);
+            const verifiedUserId = decoded?.id || id; // Изменяем с userId на id
             const verifiedStatus = decoded?.status || status;
 
             if (!verifiedUserId || !verifiedStatus) {
@@ -36,21 +40,14 @@ export const useAuth = () => {
             logout();
             throw e; // Пробрасываем ошибку для обработки в компоненте
         }
-    }, []);
-
-    const logout = useCallback(() => {
-        setToken(null);
-        setUserId(null);
-        setUserStatus(null);
-        localStorage.removeItem(storageName);
-    }, []);
+    }, [logout]);    
 
     useEffect(() => {
         const data = JSON.parse(localStorage.getItem(storageName));
 
         if (data?.token) {
             try {
-                const decoded = jwt_decode(data.token);
+                const decoded = jwtDecode(data.token);
                 // Проверяем данные как из localStorage, так и из токена
                 const verifiedUserId = decoded?.userId || data.userId;
                 const verifiedStatus = decoded?.status || data.userStatus;
@@ -74,6 +71,7 @@ export const useAuth = () => {
         userId,
         userStatus,
         ready,
+        isAuthenticated: !!token,
         isEmployer: userStatus === 'employer',
         isStudent: userStatus === 'student'
     };

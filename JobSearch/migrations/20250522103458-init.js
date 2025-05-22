@@ -3,10 +3,17 @@
 module.exports = {
     async up(queryInterface, Sequelize) {
         await queryInterface.createTable('users', {
+            id: {
+                type: Sequelize.INTEGER,
+                primaryKey: true,
+                autoIncrement: true,
+                allowNull: false
+            },
+
             email: {
                 type: Sequelize.STRING,
                 allowNull: false,
-                primaryKey: true,
+                unique: true,
                 validate: { isEmail: true }
             },
             password: {
@@ -80,6 +87,14 @@ module.exports = {
         });
 
         await queryInterface.createTable('students', {
+            userId: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'users',
+                    key: 'id'
+                }
+            },
+
             studentId: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
@@ -89,12 +104,6 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: true,
                 validate: { isEmail: true },
-                references: {
-                    model: 'users',
-                    key: 'email'
-                },
-                onUpdate: 'CASCADE',
-                onDelete: 'CASCADE'
             },
             name: {
                 type: Sequelize.STRING
@@ -125,6 +134,15 @@ module.exports = {
         });
 
         await queryInterface.createTable('employers', {
+            userId: {
+                type: Sequelize.INTEGER,
+                unique: true,
+                references: {
+                    model: 'users',
+                    key: 'id'
+                }
+            },
+
             employerId: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
@@ -134,13 +152,6 @@ module.exports = {
                 type: Sequelize.STRING,
                 allowNull: false,
                 unique: true,
-                validate: { isEmail: true },
-                references: {
-                    model: 'users',
-                    key: 'email'
-                },
-                onUpdate: 'CASCADE',
-                onDelete: 'CASCADE'
             },
             name: {
                 type: Sequelize.STRING

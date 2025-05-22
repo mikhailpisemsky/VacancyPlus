@@ -6,8 +6,8 @@ const config = require('config');
 const db = require('../models');
 const User = db.User;
 const sequelize = require('../config/db');
-const Student = db.Student; //Импорт модели Student
-const Employer = db.Employer; //Импорт модели Employer
+const Student = db.Student;
+const Employer = db.Employer;
 const router = Router();
 
 // /api/auth/register
@@ -29,7 +29,6 @@ router.post(
 
             const { email, password, status } = req.body;
 
-            // Поиск пользователя с использованием Sequelize
             const candidate = await User.findOne({
                 where: sequelize.where(
                     sequelize.fn('lower', sequelize.col('email')),
@@ -43,28 +42,19 @@ router.post(
 
             const hashedPassword = await bcrypt.hash(password, 12);
 
-            // Создание пользователя через Sequelize
             const newUser = await User.create({
                 email: email.toLowerCase().trim(),
                 password: hashedPassword,
                 status
             });
 
-            console.log('Created user:', newUser.toJSON());
-
-            if (status == "student") {
-                await Student.create({
-                    email
-                });
+            if (status === "student") {
+                await Student.create({ userId: newUser.id, email: newUser.email });
+            } else if (status === "employer") {
+                await Employer.create({ userId: newUser.id, email: newUser.email });
             }
 
-            if (status == "employer") {
-                await Employer.create({
-                    email
-                });
-            }
-
-            return res.status(201).json({ message: 'Пользователь создан' });
+            return res.status(201).json({ message: 'Пользователь создан', userId: newUser.id });
 
         } catch (e) {
             console.error('Ошибка при регистрации:', e);
@@ -91,7 +81,6 @@ router.post(
 
             const { email, password, status } = req.body;
 
-            // Поиск пользователя через Sequelize
             const user = await User.findOne({
                 where: sequelize.where(
                     sequelize.fn('lower', sequelize.col('email')),
@@ -103,25 +92,21 @@ router.post(
                 return res.status(400).json({ message: 'Пользователь не найден' });
             }
 
-            console.log('Input password:', password);
-            console.log('Stored hash:', user.password);
-
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
                 return res.status(400).json({ message: 'Неверный пароль' });
             }
 
-            console.log('Input password:', password);
-            console.log('Stored hash:', user.password);
-            console.log('Comparison result:', isMatch);
-
             if (status !== user.status) {
                 return res.status(400).json({ message: 'Неверный тип аккаунта' });
             }
 
-            // Создание JWT токена
             const token = jwt.sign(
-                { userId: user.id, email: user.email, status: user.status },
+                {
+                    id: user.id,
+                    email: user.email,
+                    status: user.status
+                },
                 config.get('jwtSecret'),
                 { expiresIn: '5h' }
             );

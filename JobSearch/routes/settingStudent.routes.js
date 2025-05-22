@@ -9,7 +9,7 @@ const router = Router();
 router.get('/', auth, async (req, res) => {
     try {
         const student = await Student.findOne({
-            where: { email: req.user.email }
+            where: { userId: req.user.userId }
         });
 
         if (!student) {
@@ -27,17 +27,26 @@ router.post('/setting', auth, async (req, res) => {
     try {
         const { name, phone } = req.body;
 
-        await Student.update(
+        if (!name || !phone) {
+            return res.status(400).json({ message: 'Заполните все поля' });
+        }
+
+        const [updated] = await Student.update(
             { name, phone },
             {
-                where: { email: req.user.email },
+                where: { userId: req.user.userId },
                 returning: true
             }
         );
 
-        return res.status(201).json({ message: 'Данные успешно обновлены' });
+        if (!updated) {
+            return res.status(404).json({ message: 'Профиль студента не найден' });
+        }
+
+        return res.json({ message: 'Данные успешно обновлены' });
     } catch (e) {
-        return res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
+        console.error(e);
+        return res.status(500).json({ message: 'Ошибка при обновлении данных' });
     }
 });
 

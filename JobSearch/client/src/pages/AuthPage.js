@@ -35,16 +35,27 @@ export const AuthPage = () => {
 
     const loginHandler = async () => {
         try {
-            const data = await request('/api/auth/login', 'POST', { ...form });
+            const data = await request('http://localhost:5000/api/auth/login', 'POST', { ...form });
 
-            // Проверяем наличие всех данных
             if (!data.token || !data.userId || !data.userStatus) {
-                throw new Error('Неполные данные с сервера');
+                throw new Error('Ошибка сервера: неполные данные');
             }
 
             auth.login(data.token, data.userId, data.userStatus);
+            window.M.toast({ html: 'Авторизация успешна', classes: 'green' });
+
+            // Перенаправление после успешного входа
+            setTimeout(() => {
+                window.location.href = auth.userStatus === 'employer'
+                    ? '/create-vacancy'
+                    : '/vacancies';
+            }, 1000);
+
         } catch (e) {
-            window.M.toast({ html: 'Ошибка авторизации', classes: 'red' });
+            window.M.toast({
+                html: e.response?.data?.message || 'Ошибка авторизации',
+                classes: 'red'
+            });
         }
     };
 

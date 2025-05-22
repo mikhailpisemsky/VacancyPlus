@@ -28,13 +28,15 @@ export const StudentPage = () => {
         try {
             const data = await request('http://localhost:5000/api/student/setting', 'POST', { ...form }, {
                 Authorization: `Bearer ${auth.token}`
-            })
-            message(data.message)
-
+            });
+            message(data.message);
+            // Обновляем данные после сохранения
+            await fetchStudent();
         } catch (e) {
-            console.error('Полный текст ошибки', e);
+            message(e.message || 'Ошибка сохранения данных');
         }
     }
+
 
     const fetchStudent = useCallback(async () => {
         try {
