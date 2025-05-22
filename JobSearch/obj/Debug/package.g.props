@@ -27,6 +27,7 @@
     <PackageJsonDependenciesExpressValidator Condition="$(PackageJsonDependenciesExpressValidator) == ''">^7.2.1</PackageJsonDependenciesExpressValidator>
     <PackageJsonDependenciesFileSystem Condition="$(PackageJsonDependenciesFileSystem) == ''">^2.2.2</PackageJsonDependenciesFileSystem>
     <PackageJsonDependenciesJsonwebtoken Condition="$(PackageJsonDependenciesJsonwebtoken) == ''">^9.0.2</PackageJsonDependenciesJsonwebtoken>
+    <PackageJsonDependenciesJwtDecode Condition="$(PackageJsonDependenciesJwtDecode) == ''">^4.0.0</PackageJsonDependenciesJwtDecode>
     <PackageJsonDependenciesPath Condition="$(PackageJsonDependenciesPath) == ''">^0.12.7</PackageJsonDependenciesPath>
     <PackageJsonDependenciesPg Condition="$(PackageJsonDependenciesPg) == ''">^8.16.0</PackageJsonDependenciesPg>
     <PackageJsonDependenciesSequelize Condition="$(PackageJsonDependenciesSequelize) == ''">^6.37.7</PackageJsonDependenciesSequelize>

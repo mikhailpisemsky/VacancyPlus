@@ -121,12 +121,12 @@ router.post(
 
             // Создание JWT токена
             const token = jwt.sign(
-                { userId: user.id, email: user.email },
+                { userId: user.id, email: user.email, status: user.status },
                 config.get('jwtSecret'),
                 { expiresIn: '5h' }
             );
 
-            res.json({ token, userId: user.id, userStatus: status });
+            res.json({ token, userId: user.id, userStatus: user.status });
 
         } catch (e) {
             console.error('Ошибка авторизации:', e);

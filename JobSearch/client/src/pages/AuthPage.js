@@ -35,12 +35,18 @@ export const AuthPage = () => {
 
     const loginHandler = async () => {
         try {
-            const data = await request('http://localhost:5000/api/auth/login', 'POST', { ...form })
-            auth.login(data.token, data.userId, data.userStatus)
+            const data = await request('/api/auth/login', 'POST', { ...form });
+
+            // Проверяем наличие всех данных
+            if (!data.token || !data.userId || !data.userStatus) {
+                throw new Error('Неполные данные с сервера');
+            }
+
+            auth.login(data.token, data.userId, data.userStatus);
         } catch (e) {
-            console.error('Полный текст ошибки', e);
+            window.M.toast({ html: 'Ошибка авторизации', classes: 'red' });
         }
-    }
+    };
 
     return (
         <div className="row">

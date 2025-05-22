@@ -15,6 +15,12 @@ module.exports = (req, res, next) => {
 
         const decoded = jwt.verify(token, config.get('jwtSecret'));
 
+        if (!decoded.userId || !decoded.status) {
+            return res.status(401).json({ message: 'Неполные данные авторизации' });
+        }
+
+        console.log('Decoded token:', decoded);
+
         req.user = {
             userId: decoded.userId,
             email: decoded.email,
