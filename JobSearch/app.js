@@ -1,3 +1,4 @@
+require('./models/index');
 const express = require('express');
 const config = require('config');
 const pool = require('./config/db');
@@ -29,15 +30,22 @@ app.get('/api/test', (req, res) => {
     res.json({ message: "API работает!" });
 });
 
+const db = require('./models/index');
+
 async function start() { 
     try {
-        pool.query('SELECT NOW()')
+        await db.sequelize.authenticate();
+        console.log('Connection has been established successfully.');
+
+        // Используйте { alter: true } только для разработки!
+        await db.sequelize.sync({ alter: true });
+
         app.listen(PORT, () => {
-            console.log(`Сервер запущен на порте ${PORT}...`)
-        })
-    } catch (e) {
-        console.log('Ошибка сервера', e.message)
-        process.exit(1)
+            console.log(`Server is running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Unable to start server:', error);
+        process.exit(1);
     }
 }
 

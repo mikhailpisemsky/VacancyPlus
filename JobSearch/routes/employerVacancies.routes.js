@@ -1,8 +1,9 @@
 const { Router } = require('express');
 const auth = require('../middleware/auth.middleware');
-const EmployerVacancy = require('../models/EmployersVacancies');
-const Vacancy = require('../models/Vacancy');
-const Position = require('../models/Position');
+const db = require('../models');
+const EmployerVacancy = db.EmployerVacancy;
+const Vacancy = db.Vacancy;
+const NamePosition = db.NamePosition;
 
 const router = Router();
 
@@ -20,7 +21,7 @@ router.get('/my-vacancies', auth, async (req, res) => {
                     as: 'vacancy',
                     include: [
                         {
-                            model: Position,
+                            model: NamePosition,
                             as: 'position',
                             attributes: ['positionId', 'position']
                         }

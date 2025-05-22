@@ -13,7 +13,8 @@ export const CreateVacancyPage = () => {
     const [form, setForm] = useState({
         vacancyType: '',
         positionName: '',
-        description: ''
+        companyName: '',
+        vacancyDescription: ''
     });
 
     // Проверка авторизации при загрузке
@@ -52,11 +53,11 @@ export const CreateVacancyPage = () => {
             clearError();
 
             // Валидация перед отправкой
-            if (!form.vacancyType || !form.positionName || !form.description) {
+            if (!form.vacancyType || !form.companyName || !form.positionName || !form.vacancyDescription) {
                 return M.toast({ html: 'Все поля обязательны для заполнения', classes: 'red' });
             }
 
-            if (form.description.length < 10) {
+            if (form.vacancyDescription.length < 10) {
                 return M.toast({ html: 'Описание должно содержать минимум 10 символов', classes: 'red' });
             }
 
@@ -68,7 +69,8 @@ export const CreateVacancyPage = () => {
             setForm({
                 vacancyType: '',
                 positionName: '',
-                description: ''
+                companyName: '',
+                vacancyDescription: ''
             });
             message(data.message);
 
@@ -103,17 +105,30 @@ export const CreateVacancyPage = () => {
                                 <label htmlFor="positionName" className="white-text active">Название позиции</label>
                             </div>
 
+                            <div className="input-field col s12">
+                                <input
+                                    placeholder="Укажите название компании"
+                                    id="companyName"
+                                    type="text"
+                                    name="companyName"
+                                    value={form.companyName}
+                                    onChange={changeHandler}
+                                    className="white-text"
+                                />
+                                <label htmlFor="companyName" className="white-text active">Название компании</label>
+                            </div>
+
                             {/* Поле описания вакансии */}
                             <div className="input-field col s12">
                                 <textarea
                                     placeholder="Опишите обязанности, требования и условия работы"
-                                    id="description"
-                                    name="description"
-                                    value={form.description}
+                                    id="vacancyDescription"
+                                    name="vacancyDescription"
+                                    value={form.vacancyDescription}
                                     onChange={changeHandler}
                                     className="white-text materialize-textarea"
                                 />
-                                <label htmlFor="description" className="white-text active">Описание вакансии</label>
+                                <label htmlFor="vacancyDescription" className="white-text active">Описание вакансии</label>
                             </div>
 
                             {/* Поле выбора типа вакансии */}

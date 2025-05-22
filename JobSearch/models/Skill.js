@@ -3,35 +3,39 @@ const sequelize = require('../config/db'); // Импортируем настр�
 const Sequelize = require('sequelize');
 const DataTypes = Sequelize.DataTypes;
 
-const Skill = sequelize.define('Skill', {
-    skillId: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
+module.exports = (sequelize, DataTypes) => {
+    const Skill = sequelize.define('Skill', {
+        skillId: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
+
+        skill: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
+        },
     },
+        {
+            tableName: 'skills',
+            timestamps: false,
+            createdAt: false,
+        });
 
-    skill: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-    },
-},
-    {
-        tableName: 'skills',
-        timestamps: false,
-        createdAt: false,
-    });
+    Skill.associate = (models) => {
+        Skill.hasMany(models.StudentSkill, {
+            foreignKey: 'skillId',
+            as: 'studentAssociations',
+            onDelete: 'CASCADE'
+        });
 
-async function testConnection() {
-    try {
-        await sequelize.authenticate();
-        console.log('Подключение к БД PostgreSQL прошло успешно.');
-        console.log(Skill == sequelize.models.Skill); // true
-    } catch (error) {
-        console.error('Ошибка подключения к БД PostgreSQL:', error);
-    }
-}
+        Skill.hasMany(models.RequiredSkill, {
+            foreignKey: 'skillId',
+            as: 'vacancyRequirements',
+            onDelete: 'CASCADE'
+        });
+    };
 
-testConnection();
-
-module.exports = Skill;
+    return Skill;
+};

@@ -1,9 +1,10 @@
 const { Router } = require('express');
 const { check, validationResult } = require('express-validator');
-const { sequelize } = require('../config/db');
-const Vacancy = require('../models/Vacancy');
-const Position = require('../models/Position');
-const EmployerVacancy = require('../models/EmployersVacancies');
+const { sequelize } = require('../config/db')
+const db = require('../models');;
+const Vacancy = db.Vacancy;
+const NamePosition = db.NamePosition;
+const EmployerVacancy = db.EmployerVacancy;
 const auth = require('../middleware/auth.middleware');
 
 const router = Router();
@@ -19,24 +20,41 @@ const vacancyValidation = [
         'участие в исследовательских проектах',
         'стажировка в партнёрских организациях'
     ]),
-    check('vacancyDescription', 'Описание должно быть от 10 до 2000 символов').isLength({ min: 10, max: 2000 })
+    check('vacancyDescription', 'Описание должно быть от 10 до 2000 символов').isLength({ min: 10, max: 2000 }),
+    check('companyName', 'Название компании обязательно').notEmpty().trim().isLength({ min: 3, max: 100 })
 ];
 
 router.post('/add', auth, vacancyValidation, async (req, res) => {
-    const transaction = await sequelize.transaction();
+    // Проверка валидации
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            errors: errors.array(),
+            message: 'Некорректные данные вакансии'
+        });
+    }
+
+    const { positionName, vacancyType, companyName, vacancyDescription } = req.body;
+    const employerId = req.user.userId;
+
+    // Проверка подключения к БД
+    if (!sequelize || !sequelize.authenticate) {
+        return res.status(500).json({ message: 'Ошибка подключения к базе данных' });
+    }
+
+    let transaction;
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                errors: errors.array(),
-                message: 'Некорректные данные вакансии'
-            });
+        // Проверяем соединение перед созданием транзакции
+        await sequelize.authenticate();
+
+        // Создаем транзакцию
+        transaction = await sequelize.transaction();
+        if (!transaction || typeof transaction.rollback !== 'function') {
+            throw new Error('Не удалось создать транзакцию');
         }
 
-        const { positionName, vacancyType, vacancyDescription, employerId } = req.body;
-
         // 1. Находим или создаем позицию
-        const [position] = await Position.findOrCreate({
+        const [position] = await NamePosition.findOrCreate({
             where: {
                 position: sequelize.where(
                     sequelize.fn('lower', sequelize.col('position')),
@@ -53,6 +71,7 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
         const vacancy = await Vacancy.create({
             vacancyType,
             positionId: position.positionId,
+            companyName,
             vacancyDescription,
             vacancyStatus: 'создана'
         }, { transaction });
@@ -63,28 +82,43 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
             employerId
         }, { transaction });
 
+        // Фиксируем транзакцию
         await transaction.commit();
 
-        res.status(201).json({
+        return res.status(201).json({
             message: 'Вакансия успешно создана',
             vacancyId: vacancy.vacancyId,
             positionId: position.positionId,
-            positionCreated: position._options.isNewRecord // Была ли создана новая позиция
+            positionCreated: position._options.isNewRecord
         });
 
-    } catch (e) {
-        await transaction.rollback();
-        console.error('Ошибка при создании вакансии:', e);
+    } catch (error) {
+        // Безопасный откат транзакции
+        if (transaction && typeof transaction.rollback === 'function') {
+            try {
+                await transaction.rollback();
+            } catch (rollbackError) {
+                console.error('Ошибка при откате транзакции:', rollbackError);
+            }
+        }
 
-        if (e.name === 'SequelizeForeignKeyConstraintError') {
+        console.error('Ошибка при создании вакансии:', error);
+
+        if (error.name === 'SequelizeForeignKeyConstraintError') {
             return res.status(400).json({
                 message: 'Указанный работодатель не существует'
             });
         }
 
-        res.status(500).json({
+        if (error.message.includes('транзакция')) {
+            return res.status(500).json({
+                message: 'Ошибка при работе с базой данных'
+            });
+        }
+
+        return res.status(500).json({
             message: 'Ошибка сервера при создании вакансии',
-            error: process.env.NODE_ENV === 'development' ? e.message : undefined
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });

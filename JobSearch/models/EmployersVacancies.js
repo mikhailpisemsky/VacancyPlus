@@ -3,33 +3,23 @@ const sequelize = require('../config/db'); // Импортируем настр�
 const Sequelize = require('sequelize');
 const DataTypes = Sequelize.DataTypes;
 
-const EmployersVacancies = sequelize.define('EmployersVacancies', {
-    vacancyId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+module.exports = (sequelize, DataTypes) => {
+    const EmployerVacancy = sequelize.define('EmployerVacancy', {
+        vacancyId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+
+        employerId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
     },
+        {
+            tableName: 'employers_vacancies',
+            timestamps: false,
+            createdAt: false,
+        });
 
-    employerId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
-},
-    {
-        tableName: 'employers_vacancies',
-        timestamps: false,
-        createdAt: false,
-    });
-
-async function testConnection() {
-    try {
-        await sequelize.authenticate();
-        console.log('Подключение к БД PostgreSQL прошло успешно.');
-        console.log(EmployersVacancies == sequelize.models.EmployersVacancies); // true
-    } catch (error) {
-        console.error('Ошибка подключения к БД PostgreSQL:', error);
-    }
-}
-
-testConnection();
-
-module.exports = EmployersVacancies;
+    return EmployerVacancy;
+};

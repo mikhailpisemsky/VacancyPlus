@@ -1,5 +1,6 @@
 const { Router } = require('express');
-const Employer = require('../models/Employer');
+const db = require('../models');
+const Employer = db.Employer;
 const auth = require('../middleware/auth.middleware');
 
 const router = Router();

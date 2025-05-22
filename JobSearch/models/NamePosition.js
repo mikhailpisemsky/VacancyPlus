@@ -4,22 +4,24 @@ const Sequelize = require('sequelize');
 const DataTypes = Sequelize.DataTypes;
 
 module.exports = (sequelize, DataTypes) => {
-    const RequiredSkill = sequelize.define('RequiredSkill', {
-        vacancyId: {
+    const NamePosition = sequelize.define('NamePosition', {
+        positionId: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true,
         },
 
-        skillId: {
-            type: DataTypes.INTEGER,
+        position: {
+            type: DataTypes.STRING,
             allowNull: false,
+            unique: true,
         },
     },
         {
-            tableName: 'necessary_skills',
+            tableName: 'positions',
             timestamps: false,
             createdAt: false,
         });
 
-    return RequiredSkill;
-};
+    return NamePosition;
+}

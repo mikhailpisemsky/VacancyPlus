@@ -25,8 +25,10 @@
     <PackageJsonDependenciesDotenv Condition="$(PackageJsonDependenciesDotenv) == ''">^16.5.0</PackageJsonDependenciesDotenv>
     <PackageJsonDependenciesExpress Condition="$(PackageJsonDependenciesExpress) == ''">^5.1.0</PackageJsonDependenciesExpress>
     <PackageJsonDependenciesExpressValidator Condition="$(PackageJsonDependenciesExpressValidator) == ''">^7.2.1</PackageJsonDependenciesExpressValidator>
+    <PackageJsonDependenciesFileSystem Condition="$(PackageJsonDependenciesFileSystem) == ''">^2.2.2</PackageJsonDependenciesFileSystem>
     <PackageJsonDependenciesJsonwebtoken Condition="$(PackageJsonDependenciesJsonwebtoken) == ''">^9.0.2</PackageJsonDependenciesJsonwebtoken>
-    <PackageJsonDependenciesPg Condition="$(PackageJsonDependenciesPg) == ''">^8.15.5</PackageJsonDependenciesPg>
+    <PackageJsonDependenciesPath Condition="$(PackageJsonDependenciesPath) == ''">^0.12.7</PackageJsonDependenciesPath>
+    <PackageJsonDependenciesPg Condition="$(PackageJsonDependenciesPg) == ''">^8.16.0</PackageJsonDependenciesPg>
     <PackageJsonDependenciesSequelize Condition="$(PackageJsonDependenciesSequelize) == ''">^6.37.7</PackageJsonDependenciesSequelize>
     <PackageJsonDevdependenciesConcurrently Condition="$(PackageJsonDevdependenciesConcurrently) == ''">^9.1.2</PackageJsonDevdependenciesConcurrently>
     <PackageJsonDevdependenciesNodemon Condition="$(PackageJsonDevdependenciesNodemon) == ''">^3.1.10</PackageJsonDevdependenciesNodemon>

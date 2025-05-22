@@ -3,9 +3,10 @@ const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const config = require('config');
-const User = require('../models/User'); // Импорт модели User
-const Student = require('../models/Student'); //Импорт модели Student
-const Employer = require('../models/Employer'); //Импорт модели Employer
+const db = require('../models');
+const User = db.User;
+const Student = db.Student; //Импорт модели Student
+const Employer = db.Employer; //Импорт модели Employer
 const router = Router();
 
 // /api/auth/register
