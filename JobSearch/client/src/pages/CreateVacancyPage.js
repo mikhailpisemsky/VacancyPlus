@@ -20,21 +20,18 @@ export const CreateVacancyPage = () => {
         vacancyDescription: ''
     });
 
-    // Проверка авторизации при загрузке
     useEffect(() => {
         if (!token) {
             navigate('/');
         }
     }, [token, navigate]);
 
-    // Инициализация Materialize select
     useEffect(() => {
         M.updateTextFields();
         const select = document.querySelectorAll('select');
         M.FormSelect.init(select);
     }, []);
 
-    // Обработка ошибок авторизации
     useEffect(() => {
         if (error && (error === 'Нет авторизации' || error.includes('401'))) {
             logout();
@@ -45,7 +42,6 @@ export const CreateVacancyPage = () => {
         }
     }, [error, message, clearError, logout, navigate]);
 
-    // Обработчик изменения полей формы
     const changeHandler = event => {
         const value = event.target.type === 'number'
             ? event.target.valueAsNumber || ''
@@ -54,12 +50,10 @@ export const CreateVacancyPage = () => {
         setForm({ ...form, [event.target.name]: value });
     };
 
-    // Обработчик отправки формы
     const submitHandler = async () => {
         try {
             clearError();
 
-            // Валидация перед отправкой
             if (!form.vacancyType || !form.companyName || !form.positionName || !form.vacancyDescription) {
                 return M.toast({ html: 'Все поля обязательны для заполнения', classes: 'red' });
             }            

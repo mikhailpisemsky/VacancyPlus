@@ -7,7 +7,6 @@ const NamePosition = db.NamePosition;
 
 const router = Router();
 
-// Получение всех вакансий текущего пользователя
 router.get('/my-vacancies', auth, async (req, res) => {
     try {
         const employerId = req.user.id; // ID из токена (уже проверен)

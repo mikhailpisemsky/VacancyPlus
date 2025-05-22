@@ -28,15 +28,13 @@ export const StudentPage = () => {
         try {
             const data = await request('http://localhost:5000/api/student/setting', 'POST', { ...form }, {
                 Authorization: `Bearer ${auth.token}`
-            });
-            message(data.message);
-            // Обновляем данные после сохранения
-            await fetchStudent();
+            })
+            message(data.message)
+
         } catch (e) {
-            message(e.message || 'Ошибка сохранения данных');
+            console.error('Полный текст ошибки', e);
         }
     }
-
 
     const fetchStudent = useCallback(async () => {
         try {
@@ -72,7 +70,7 @@ export const StudentPage = () => {
                                 name="name"
                                 value={form.name}
                                 onChange={changeHandler}
-                                className="white-text"                                
+                                className="white-text"
                             />
                             <label htmlFor="name" className="white-text active">ФИО</label>
                         </div>
@@ -85,7 +83,7 @@ export const StudentPage = () => {
                                 name="phone"
                                 value={form.phone}
                                 onChange={changeHandler}
-                                className="white-text"                                
+                                className="white-text"
                             />
                             <label htmlFor="phone" className="white-text active">Телефон</label>
                         </div>

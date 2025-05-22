@@ -1,10 +1,11 @@
 const { Router } = require('express');
 const { check, validationResult } = require('express-validator');
-const { sequelize } = require('../config/db')
+const sequelize = require('../config/db');
 const db = require('../models');;
 const Vacancy = db.Vacancy;
 const NamePosition = db.NamePosition;
 const EmployerVacancy = db.EmployerVacancy;
+const Employer = db.Employer;
 const auth = require('../middleware/auth.middleware');
 
 const router = Router();
@@ -25,9 +26,6 @@ const vacancyValidation = [
 ];
 
 router.post('/add', auth, vacancyValidation, async (req, res) => {
-    console.log('User making request:', req.user);
-    console.log('Request body:', req.body);
-    // Проверка что пользователь работодатель
     if (req.user.status !== 'employer') {
         return res.status(403).json({ message: 'Только работодатели могут создавать вакансии' });
     }
@@ -41,18 +39,21 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
     }
 
     const { positionName, vacancyType, companyName, min_salary, max_salary, vacancyDescription } = req.body;
-    const employerId = req.user.userId;
-
-    // Нормализация зарплат
     const minSalary = min_salary !== undefined ? Number(min_salary) : null;
     const maxSalary = max_salary !== undefined ? Number(max_salary) : null;
 
     let transaction;
     try {
-        await sequelize.authenticate();
+        const employer = await Employer.findOne({
+            where: { email : req.user.email }
+        });
+
+        if (!employer) {
+            return res.status(404).json({ message: 'Профиль работодателя не найден' });
+        }
+
         transaction = await sequelize.transaction();
 
-        // 1. Находим или создаем позицию
         const [position] = await NamePosition.findOrCreate({
             where: {
                 position: sequelize.where(
@@ -64,7 +65,6 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
             transaction
         });
 
-        // 2. Создаем вакансию
         const vacancy = await Vacancy.create({
             vacancyType,
             positionId: position.positionId,
@@ -72,14 +72,16 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
             min_salary: minSalary,
             max_salary: maxSalary,
             vacancyDescription: vacancyDescription.trim(),
-            vacancyStatus: 'создана'
+            vacancyStatus: 'created'
         }, { transaction });
 
-        // 3. Связываем с работодателем
         await EmployerVacancy.create({
             vacancyId: vacancy.vacancyId,
-            employerId
-        }, { transaction });
+            employerId: employer.employerId,
+        }, {
+            transaction,
+            fields: ['vacancyId', 'employerId']
+        });
 
         await transaction.commit();
 
