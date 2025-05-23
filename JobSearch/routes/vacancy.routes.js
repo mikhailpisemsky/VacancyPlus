@@ -113,48 +113,103 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
 
 router.get('/:id', auth, async (req, res) => {
     try {
-        const employer = await Employer.findOne({
-            where: { email: req.user.email }
-        });
-        const vacancy = await db.Vacancy.findOne({
-            where: { vacancyId: req.params.id },
-            include: [
-                {
-                    model: db.NamePosition,
-                    as: 'position',
-                    attributes: ['position']
+        const userType = req.user.status;
+        let vacancy;
+
+        if (userType === 'employer') {
+            const employer = await db.Employer.findOne({
+                where: { email: req.user.email }
+            });
+
+            vacancy = await db.Vacancy.findOne({
+                where: { vacancyId: req.params.id },
+                include: [
+                    {
+                        model: db.NamePosition,
+                        as: 'position',
+                        attributes: ['position']
+                    },
+                    {
+                        model: db.EmployerVacancy,
+                        as: 'vacancyOwners',
+                        where: { employerId: employer.employerId },
+                        required: true,
+                        include: [{
+                            model: db.Employer,
+                            as: 'employer'
+                        }]
+                    }
+                ]
+            });
+
+            if (!vacancy) {
+                return res.status(404).json({ message: 'Вакансия не найдена или вам недоступна' });
+            }
+
+            return res.json({
+                id: vacancy.vacancyId,
+                position: vacancy.position?.position || 'Не указано',
+                type: vacancy.vacancyType,
+                company: vacancy.companyName,
+                minSalary: vacancy.min_salary,
+                maxSalary: vacancy.max_salary,
+                description: vacancy.vacancyDescription,
+                status: vacancy.vacancyStatus,
+                contactPerson: employer.name,
+                contactEmail: req.user.email,
+                contactPhone: employer.phone,
+                createdAt: vacancy.createdAt
+            });
+        } else if (userType === 'student') {
+            vacancy = await db.Vacancy.findOne({
+                where: {
+                    vacancyId: req.params.id
                 },
-                {
-                    model: db.EmployerVacancy,
-                    as: 'vacancyOwners',
-                    where: { employerId: employer.employerId },
-                    required: true
-                }
-            ]
-        });
+                include: [
+                    {
+                        model: db.NamePosition,
+                        as: 'position',
+                        attributes: ['position']
+                    },
+                    {
+                        model: db.EmployerVacancy,
+                        as: 'vacancyOwners',
+                        include: [{
+                            model: db.Employer,
+                            as: 'employer',
+                            attributes: ['name', 'phone', 'email']
+                        }]
+                    }
+                ]
+            });
 
-        if (!vacancy) {
-            return res.status(404).json({ message: 'Вакансия не найдена' });
+            if (!vacancy) {
+                return res.status(404).json({ message: 'Вакансия не найдена' });
+            }
+
+            const employerInfo = vacancy.vacancyOwners?.[0]?.employer;
+
+            return res.json({
+                id: vacancy.vacancyId,
+                position: vacancy.position?.position || 'Не указано',
+                type: vacancy.vacancyType,
+                company: vacancy.companyName,
+                minSalary: vacancy.min_salary,
+                maxSalary: vacancy.max_salary,
+                description: vacancy.vacancyDescription,
+                contactPerson: employerInfo?.name || 'Не указано',
+                contactEmail: employerInfo?.email || 'Не указано',
+                contactPhone: employerInfo?.phone || 'Не указано',
+                createdAt: vacancy.createdAt,
+                canApply: true
+            });
+        } else {
+            return res.status(403).json({ message: 'Доступ запрещен' });
         }
-
-        res.json({
-            id: vacancy.vacancyId,
-            position: vacancy.position?.position || 'Не указано',
-            type: vacancy.vacancyType,
-            company: vacancy.companyName,
-            minSalary: vacancy.min_salary,
-            maxSalary: vacancy.max_salary,
-            description: vacancy.vacancyDescription,
-            status: vacancy.vacancyStatus,
-            contactPerson: employer.name,
-            contactEmail: req.user.email,
-            contactPhone: employer.phone,
-            createdAt: vacancy.createdAt
-        });
-
     } catch (e) {
         console.error('Ошибка при получении вакансии:', e);
         res.status(500).json({ message: 'Не удалось загрузить вакансию' });
     }
 });
+
 module.exports = router;

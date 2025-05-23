@@ -27,7 +27,6 @@ export const useRoutes = isAuthenticated => {
                 <Route path="/vacancies/:id" element={<VacancyPage />} />
                 <Route path="/empvacancies" exact element={<EmployersVacanciesPage />} />
                 <Route path="/create" exact element={<CreateVacancyPage />} />
-                <Route path="*" element={<Navigate to="/main" />} />
             </Routes>
         )
     }

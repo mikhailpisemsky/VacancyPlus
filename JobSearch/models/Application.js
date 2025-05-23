@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
 
         createdAt: {
             type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW, // Автоматическая установка времени создания
+            defaultValue: DataTypes.NOW,
             allowNull: false
         },
     },

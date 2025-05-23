@@ -25,6 +25,8 @@ const vacanciRoutes = require('./routes/vacancy.routes')
 app.use('/api/vacancies', vacanciRoutes)
 const empVacanciRoutes = require('./routes/employerVacancies.routes')
 app.use('/api/empvacancies', empVacanciRoutes)
+const searchRoutes = require('./routes/search.routes');
+app.use('/api/search', searchRoutes);
 
 app.get('/api/test', (req, res) => {
     res.json({ message: "API работает!" });

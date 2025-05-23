@@ -10,17 +10,15 @@ router.get('/my-vacancies', auth, async (req, res) => {
         }
         const data = await db.Employer.findOne({ where: { email: req.user.email } });
 
-        // Параметры пагинации
         const { page = 1, limit = 10, status } = req.query;
         const offset = (page - 1) * limit;
 
-        // Условия фильтрации
         const where = { employerId: data.employerId };
+
         if (status) {
             where['$vacancy.vacancyStatus$'] = status;
         }
 
-        // Запрос с пагинацией и включением связанных моделей
         const { count, rows: employerVacancies } = await db.EmployerVacancy.findAndCountAll({
             where,
             include: [{
@@ -45,10 +43,9 @@ router.get('/my-vacancies', auth, async (req, res) => {
             limit: parseInt(limit),
             offset: parseInt(offset),
             order: [[{ model: db.Vacancy, as: 'vacancy' }, 'createdAt', 'DESC']],
-            distinct: true // Важно для корректного подсчёта при пагинации
+            distinct: true
         });
 
-        // Форматирование результата
         const vacancies = employerVacancies.map(item => ({
             id: item.vacancy.vacancyId,
             position: item.vacancy.position?.position || 'Не указано',
@@ -61,7 +58,6 @@ router.get('/my-vacancies', auth, async (req, res) => {
             createdAt: item.vacancy.createdAt
         }));
 
-        // Отправка ответа
         res.json({
             success: true,
             vacancies,
@@ -76,7 +72,6 @@ router.get('/my-vacancies', auth, async (req, res) => {
     } catch (e) {
         console.error('Ошибка при получении вакансий работодателя:', e);
 
-        // Определение типа ошибки
         let statusCode = 500;
         let errorMessage = 'Не удалось загрузить вакансии';
 
