@@ -45,6 +45,12 @@ module.exports = (sequelize, DataTypes) => {
             as: 'postedVacancies',
             onDelete: 'CASCADE'
         });
+
+        Employer.belongsToMany(models.Vacancy, {
+            through: models.EmployerVacancy,
+            foreignKey: 'employerId',
+            as: 'vacancies'
+        });
     }
 
     return Employer;

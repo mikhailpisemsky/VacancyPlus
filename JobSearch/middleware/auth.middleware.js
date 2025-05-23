@@ -20,7 +20,7 @@ module.exports = (req, res, next) => {
         }
 
         req.user = {
-            userId: decoded.userId,
+            userId: decoded.id,
             email: decoded.email,
             status: decoded.status
         };

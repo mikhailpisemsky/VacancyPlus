@@ -44,6 +44,10 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
 
     let transaction;
     try {
+        const user = await db.User.findOne({
+            where: { email: req.user.email }
+        })
+
         const employer = await Employer.findOne({
             where: { email : req.user.email }
         });
@@ -106,4 +110,51 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
     }
 });
 
+
+router.get('/:id', auth, async (req, res) => {
+    try {
+        const employer = await Employer.findOne({
+            where: { email: req.user.email }
+        });
+        const vacancy = await db.Vacancy.findOne({
+            where: { vacancyId: req.params.id },
+            include: [
+                {
+                    model: db.NamePosition,
+                    as: 'position',
+                    attributes: ['position']
+                },
+                {
+                    model: db.EmployerVacancy,
+                    as: 'vacancyOwners',
+                    where: { employerId: employer.employerId },
+                    required: true
+                }
+            ]
+        });
+
+        if (!vacancy) {
+            return res.status(404).json({ message: 'Вакансия не найдена' });
+        }
+
+        res.json({
+            id: vacancy.vacancyId,
+            position: vacancy.position?.position || 'Не указано',
+            type: vacancy.vacancyType,
+            company: vacancy.companyName,
+            minSalary: vacancy.min_salary,
+            maxSalary: vacancy.max_salary,
+            description: vacancy.vacancyDescription,
+            status: vacancy.vacancyStatus,
+            contactPerson: employer.name,
+            contactEmail: req.user.email,
+            contactPhone: employer.phone,
+            createdAt: vacancy.createdAt
+        });
+
+    } catch (e) {
+        console.error('Ошибка при получении вакансии:', e);
+        res.status(500).json({ message: 'Не удалось загрузить вакансию' });
+    }
+});
 module.exports = router;

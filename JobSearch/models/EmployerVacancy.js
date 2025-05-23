@@ -17,5 +17,16 @@ module.exports = (sequelize, DataTypes) => {
             timestamps: false,
         });
 
+    EmployerVacancy.associate = (models) => {
+        EmployerVacancy.belongsTo(models.Vacancy, {
+            foreignKey: 'vacancyId',
+            as: 'vacancy'
+        });
+        EmployerVacancy.belongsTo(models.Employer, {
+            foreignKey: 'employerId',
+            as: 'employer'
+        });
+    };
+
     return EmployerVacancy;
 };

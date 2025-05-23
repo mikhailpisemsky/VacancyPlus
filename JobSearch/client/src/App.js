@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom'
 import 'materialize-css'
 import { useRoutes } from './routes';
@@ -11,6 +11,17 @@ function App() {
     const { token, login, logout, userId, userStatus, ready } = useAuth()
     const isAuthenticated = !!token
     const routes = useRoutes(isAuthenticated)
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+
+        return () => {
+            document.head.removeChild(link);
+        };
+    }, []);
 
     if (!ready) {
         return <Loader />

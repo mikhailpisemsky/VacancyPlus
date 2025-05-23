@@ -307,23 +307,17 @@ module.exports = {
         await queryInterface.createTable('employers_vacancies', {
             vacancyId: {
                 type: Sequelize.INTEGER,
-                primaryKey: true,
                 references: {
                     model: 'vacancies',
                     key: 'vacancyId'
-                },
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE'
+                }
             },
             employerId: {
                 type: Sequelize.INTEGER,
-                primaryKey: true,
                 references: {
                     model: 'employers',
                     key: 'employerId'
-                },
-                onDelete: 'CASCADE',
-                onUpdate: 'CASCADE'
+                }
             },
             createdAt: {
                 type: Sequelize.DATE,
