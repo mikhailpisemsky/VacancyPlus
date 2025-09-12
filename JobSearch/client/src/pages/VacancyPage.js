@@ -76,6 +76,23 @@ export const VacancyPage = () => {
         }
     };
 
+    const handleDelete = async () => {
+        try {
+            if (window.confirm('Вы уверены, что хотите удалить эту вакансию?')) {
+                await request(
+                    `http://localhost:5000/api/vacancies/${id}`,
+                    'DELETE',
+                    null,
+                    { Authorization: `Bearer ${auth.token}` }
+                );
+                message('Вакансия успешно удалена');
+                navigate('/employer-vacancies');
+            }
+        } catch (e) {
+            message(e.message || 'Ошибка при удалении вакансии');
+        }
+    };
+
     useEffect(() => {
         fetchVacancy();
     }, [id, auth.token]);
@@ -174,6 +191,18 @@ export const VacancyPage = () => {
                                 {hasApplied
                                     ? 'Отклик отправлен'
                                     : (loading ? 'Отправка...' : 'Откликнуться на вакансию')}
+                            </button>
+                        </div>
+                    )}
+                    {auth.userStatus === 'employer' && (
+                        <div className="center">
+                            <button
+                                className="btn waves-effect waves-light red"
+                                onClick={handleDelete}
+                                disabled={loading}
+                                style={{ marginLeft: '10px' }}
+                            >
+                                {loading ? 'Удаление...' : 'Удалить вакансию'}
                             </button>
                         </div>
                     )}

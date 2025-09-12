@@ -25,6 +25,7 @@ const vacancyValidation = [
     check('companyName', 'Название компании обязательно').notEmpty().trim().isLength({ min: 3, max: 100 })
 ];
 
+//Создание вакансии
 router.post('/add', auth, vacancyValidation, async (req, res) => {
     if (req.user.status !== 'employer') {
         return res.status(403).json({ message: 'Только работодатели могут создавать вакансии' });
@@ -110,7 +111,7 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
     }
 });
 
-
+//Просмотр отдельной вакансии
 router.get('/:id', auth, async (req, res) => {
     try {
         console.log(`Запрос вакансии ID: ${req.params.id} от пользователя типа: ${req.user.status}`);
@@ -210,6 +211,101 @@ router.get('/:id', auth, async (req, res) => {
     } catch (e) {
         console.error('Ошибка при получении вакансии:', e);
         res.status(500).json({ message: 'Не удалось загрузить вакансию' });
+    }
+});
+
+//Удаление вакансии
+router.delete('/:id', auth, async (req, res) => {
+    let transaction;
+    try {
+        if (req.user.status !== 'employer') {
+            return res.status(403).json({ message: 'Только работодатели могут удалять вакансии' });
+        }
+
+        const employer = await db.Employer.findOne({
+            where: { email: req.user.email }
+        });
+
+        if (!employer) {
+            return res.status(404).json({ message: 'Профиль работодателя не найден' });
+        }
+
+        transaction = await sequelize.transaction();
+
+        const vacancy = await db.Vacancy.findOne({
+            where: { vacancyId: req.params.id },
+            include: [{
+                model: db.EmployerVacancy,
+                as: 'vacancyOwners',
+                where: { employerId: employer.employerId },
+                required: true
+            }],
+            transaction
+        });
+
+        if (!vacancy) {
+            await transaction.rollback();
+            return res.status(404).json({ message: 'Вакансия не найдена или вам недоступна' });
+        }
+
+        await db.EmployerVacancy.destroy({
+            where: { vacancyId: req.params.id },
+            transaction
+        });
+
+        try {
+            await db.NecessarySkill.destroy({
+                where: { vacancyId: req.params.id },
+                transaction
+            });
+        } catch (e) {
+            console.log('No necessary skills to delete or error:', e.message);
+        }
+
+        try {
+            const applications = await db.Application.findAll({
+                where: { vacancyId: req.params.id },
+                transaction
+            });
+
+            if (applications.length > 0) {
+                const applicationIds = applications.map(app => app.applicationId);
+
+                await db.StudentApplication.destroy({
+                    where: { applicationId: applicationIds },
+                    transaction
+                });
+
+                await db.Application.destroy({
+                    where: { vacancyId: req.params.id },
+                    transaction
+                });
+            }
+        } catch (e) {
+            console.log('Error deleting applications:', e.message);
+        }
+
+        await db.Vacancy.destroy({
+            where: { vacancyId: req.params.id },
+            transaction
+        });
+
+        await transaction.commit();
+
+        res.json({ message: 'Вакансия успешно удалена' });
+
+    } catch (e) {
+        if (transaction) await transaction.rollback();
+
+        console.error('Ошибка при удалении вакансии:', e);
+
+        if (e.name === 'SequelizeForeignKeyConstraintError') {
+            return res.status(400).json({
+                message: 'Не удалось удалить вакансию. Обратитесь к администратору.'
+            });
+        }
+
+        res.status(500).json({ message: 'Не удалось удалить вакансию' });
     }
 });
 
