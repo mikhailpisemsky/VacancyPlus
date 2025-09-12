@@ -65,7 +65,7 @@ export const StudentsRequestsPage = () => {
             }).toString();
 
             const data = await request(
-                `http://localhost:5000/api/applications/my-applications?${query}`,
+                `http://localhost:5000/api/applications?${query}`,
                 'GET',
                 null,
                 { Authorization: `Bearer ${auth.token}` }
@@ -100,7 +100,7 @@ export const StudentsRequestsPage = () => {
             );
             
             message('Заявка успешно отозвана');
-            fetchApplications(); // Обновляем список
+            fetchApplications();
         } catch (e) {
             message(e.message || 'Ошибка при отзыве заявки');
         }

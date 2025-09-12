@@ -36,16 +36,14 @@ export const RequestPage = () => {
     const fetchApplication = async () => {
         try {
             setIsLoading(true);
-            const endpoint = isEmployer
-                ? `http://localhost:5000/api/applications/employer/${id}`
-                : `http://localhost:5000/api/applications/${id}`;
 
             const data = await request(
-                endpoint,
+                `http://localhost:5000/api/applications/${id}`,
                 'GET',
                 null,
                 { Authorization: `Bearer ${auth.token}` }
             );
+
             setApplication(data.application);
         } catch (e) {
             console.error('Ошибка загрузки заявки:', e);
@@ -154,7 +152,7 @@ export const RequestPage = () => {
                         <div className="col s12">
                             <button
                                 className="btn-flat waves-effect"
-                                onClick={() => navigate(isEmployer ? '/employer-requests' : '/stdrequests')}
+                                onClick={() => navigate(isEmployer ? '/emprequests' : '/stdrequests')}
                             >
                                 <i className="material-icons left">arrow_back</i>
                                 Назад к заявкам
@@ -261,7 +259,7 @@ export const RequestPage = () => {
                         <div className="col s12">
                             <button
                                 className="btn waves-effect waves-light grey"
-                                onClick={() => navigate(isEmployer ? '/employer-requests' : '/stdrequests')}
+                                onClick={() => navigate(isEmployer ? '/emprequests' : '/stdrequests')}
                                 disabled={loading}
                             >
                                 {loading ? 'Назад...' : 'Назад к списку'}
