@@ -52,7 +52,7 @@ router.post('/setting', auth, async (req, res) => {
         return res.status(200).json({ message: 'Данные успешно обновлены' });
 
     } catch (e) {
-        console.error('Ошибка обновления студента:', e);
+        console.error('Ошибка обновления данных студента:', e);
         return res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
     }
 });
