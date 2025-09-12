@@ -39,7 +39,7 @@ export const SearchPage = () => {
         <div className="container">
             <div className="card">
                 <div className="card-content">
-                    <h4>Доступные вакансии</h4>
+                    <h4 className="center">Доступные вакансии</h4>
 
                     {vacancies.length > 0 ? (
                         <>
