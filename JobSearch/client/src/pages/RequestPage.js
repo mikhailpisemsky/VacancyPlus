@@ -13,6 +13,7 @@ export const RequestPage = () => {
 
     const [application, setApplication] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isEmployer, setIsEmployer] = useState(false);
 
     const formatSalary = (min, max) => {
         const formatNumber = (num) => new Intl.NumberFormat('ru-RU').format(num);
@@ -35,8 +36,12 @@ export const RequestPage = () => {
     const fetchApplication = async () => {
         try {
             setIsLoading(true);
+            const endpoint = isEmployer
+                ? `http://localhost:5000/api/applications/employer/${id}`
+                : `http://localhost:5000/api/applications/${id}`;
+
             const data = await request(
-                `http://localhost:5000/api/applications/${id}`,
+                endpoint,
                 'GET',
                 null,
                 { Authorization: `Bearer ${auth.token}` }
@@ -45,7 +50,7 @@ export const RequestPage = () => {
         } catch (e) {
             console.error('Ошибка загрузки заявки:', e);
             message('Ошибка загрузки заявки');
-            navigate('/my-applications');
+            navigate(isEmployer ? '/employer-requests' : '/my-applications');
         } finally {
             setIsLoading(false);
         }
@@ -65,17 +70,47 @@ export const RequestPage = () => {
             );
 
             message('Заявка успешно отозвана');
-            navigate('/my-applications');
+            navigate('/stdrequests');
         } catch (e) {
             message(e.message || 'Ошибка при отзыве заявки');
         }
     };
 
+    const handleStatusChange = async (newStatus) => {
+        const statusText = newStatus === 'accepted' ? 'принять' : 'отклонить';
+
+        if (!window.confirm(`Вы уверены, что хотите ${statusText} эту заявку?`)) {
+            return;
+        }
+
+        try {
+            await request(
+                `http://localhost:5000/api/applications/${id}/status`,
+                'PUT',
+                { status: newStatus },
+                { Authorization: `Bearer ${auth.token}` }
+            );
+
+            message(`Заявка успешно ${newStatus === 'accepted' ? 'принята' : 'отклонена'}`);
+            fetchApplication(); // Обновляем данные
+        } catch (e) {
+            message(e.message || `Ошибка при изменении статуса заявки`);
+        }
+    };
+
     useEffect(() => {
-        if (!auth.token || auth.userStatus !== 'student') {
+        if (!auth.token) {
             navigate('/');
             return;
         }
+
+        setIsEmployer(auth.userStatus === 'employer');
+
+        if (auth.userStatus !== 'student' && auth.userStatus !== 'employer') {
+            navigate('/');
+            return;
+        }
+
         fetchApplication();
     }, [id, auth.token, auth.userStatus, navigate]);
 
@@ -99,7 +134,7 @@ export const RequestPage = () => {
                 <h5>Заявка не найдена</h5>
                 <button
                     className="btn waves-effect waves-light blue"
-                    onClick={() => navigate('/my-applications')}
+                    onClick={() => navigate(isEmployer ? '/employer-requests' : '/my-applications')}
                 >
                     Вернуться к заявкам
                 </button>
@@ -108,7 +143,8 @@ export const RequestPage = () => {
     }
 
     const status = getStatusBadge(application.applicationStatus);
-    const canDelete = application.applicationStatus === 'posted';
+    const canDelete = !isEmployer && application.applicationStatus === 'posted';
+    const canChangeStatus = isEmployer && application.applicationStatus === 'posted';
 
     return (
         <div className="container">
@@ -118,9 +154,10 @@ export const RequestPage = () => {
                         <div className="col s12">
                             <button
                                 className="btn-flat waves-effect"
-                                onClick={() => navigate('/my-applications')}
+                                onClick={() => navigate(isEmployer ? '/employer-requests' : '/stdrequests')}
                             >
-                                <i className="material-icons left">arrow_back</i>Назад к заявкам
+                                <i className="material-icons left">arrow_back</i>
+                                Назад к заявкам
                             </button>
 
                             <div className="flex-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -128,6 +165,43 @@ export const RequestPage = () => {
                                 <span className={`badge ${status.class} white-text`}>
                                     {status.text}
                                 </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row">
+                        <div className="col s12 m6">
+                            <div className="card-panel blue lighten-5">
+                                <h6>Контактные данные студента</h6>
+                                <div>
+                                    <p><strong>ФИО:</strong> {application.student?.name || 'Не указано'}</p>
+                                    <p><strong>Email:</strong> {application.student?.email || 'Не указано'}</p>
+                                    <p><strong>Телефон:</strong> {application.student?.phone || 'Не указано'}</p>
+                                    {application.student?.resumeStatus === 'uploaded' && (
+                                        <p>
+                                            <strong>Резюме:</strong>
+                                            <span className="badge green" style={{ marginLeft: '10px' }}>Загружено</span>
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="col s12 m6">
+                            <div className="card-panel green lighten-5">
+                                <h6>Контактные данные работодателя</h6>
+                                {application.vacancy?.contactPerson && (
+                                    <p><strong>Контактное лицо:</strong> {application.vacancy.contactPerson}</p>
+                                )}
+                                {application.vacancy?.contactEmail && (
+                                    <p><strong>Email:</strong> {application.vacancy.contactEmail}</p>
+                                )}
+                                {application.vacancy?.contactPhone && (
+                                    <p><strong>Телефон:</strong> {application.vacancy.contactPhone}</p>
+                                )}
+                                {(!application.vacancy?.contactPerson && !application.vacancy?.contactEmail && !application.vacancy?.contactPhone) && (
+                                    <p>Контактная информация не указана</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -144,7 +218,7 @@ export const RequestPage = () => {
                                         hour: '2-digit',
                                         minute: '2-digit'
                                     })}</p>
-                                    <p><strong>Статус:</strong> <span className={`badge ${status.class}`}>{status.text}</span></p>
+                                    <p><strong>Статус:</strong> <span>{status.text}</span></p>
                                     <p><strong>ID заявки:</strong> {application.applicationId}</p>
                                 </div>
                             </div>
@@ -152,40 +226,19 @@ export const RequestPage = () => {
 
                         <div className="col s12 m6">
                             <div className="card-panel grey lighten-5">
-                                <h6>Контактная информация</h6>
-                                {application.vacancy?.contactPerson && (
-                                    <p><strong>Контактное лицо:</strong> {application.vacancy.contactPerson}</p>
-                                )}
-                                {application.vacancy?.contactEmail && (
-                                    <p><strong>Email:</strong> {application.vacancy.contactEmail}</p>
-                                )}
-                                {application.vacancy?.contactPhone && (
-                                    <p><strong>Телефон:</strong> {application.vacancy.contactPhone}</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="row">
-                        <div className="col s12">
-                            <div className="card-panel grey lighten-5">
                                 <h6>Информация о вакансии</h6>
-                                <div className="row">
-                                    <div className="col s6">
-                                        <p><strong>Должность:</strong> {application.vacancy?.position || 'Не указано'}</p>
-                                        <p><strong>Компания:</strong> {application.vacancy?.company || 'Не указано'}</p>
-                                        <p><strong>Тип работы:</strong> {application.vacancy?.type || 'Не указано'}</p>
-                                    </div>
-                                    <div className="col s6">
-                                        <p><strong>Зарплата:</strong> {application.vacancy ?
-                                            formatSalary(application.vacancy.minSalary, application.vacancy.maxSalary)
-                                            : 'Нет данных'
-                                        }</p>
-                                        <p><strong>Дата создания вакансии:</strong> {application.vacancy ?
-                                            new Date(application.vacancy.createdAt).toLocaleDateString('ru-RU')
-                                            : 'Не указано'
-                                        }</p>
-                                    </div>
+                                <div>
+                                    <p><strong>Должность:</strong> {application.vacancy?.position || 'Не указано'}</p>
+                                    <p><strong>Компания:</strong> {application.vacancy?.company || 'Не указано'}</p>
+                                    <p><strong>Уровень занятости:</strong> {application.vacancy?.type || 'Не указано'}</p>
+                                    <p><strong>Зарплата:</strong> {application.vacancy ?
+                                        formatSalary(application.vacancy.minSalary, application.vacancy.maxSalary)
+                                        : 'Нет данных'
+                                    }</p>
+                                    <p><strong>Дата создания:</strong> {application.vacancy?.createdAt ?
+                                        new Date(application.vacancy.createdAt).toLocaleDateString('ru-RU')
+                                        : 'Не указано'
+                                    }</p>
                                 </div>
                             </div>
                         </div>
@@ -208,7 +261,7 @@ export const RequestPage = () => {
                         <div className="col s12">
                             <button
                                 className="btn waves-effect waves-light grey"
-                                onClick={() => navigate('/stdrequests')}
+                                onClick={() => navigate(isEmployer ? '/employer-requests' : '/stdrequests')}
                                 disabled={loading}
                             >
                                 {loading ? 'Назад...' : 'Назад к списку'}
@@ -223,6 +276,28 @@ export const RequestPage = () => {
                                 >
                                     {loading ? 'Отзыв...' : 'Отозвать заявку'}
                                 </button>
+                            )}
+
+                            {canChangeStatus && (
+                                <>
+                                    <button
+                                        className="btn waves-effect waves-light green"
+                                        onClick={() => handleStatusChange('accepted')}
+                                        disabled={loading}
+                                        style={{ marginLeft: '10px' }}
+                                    >
+                                        {loading ? 'Принятие...' : 'Принять заявку'}
+                                    </button>
+
+                                    <button
+                                        className="btn waves-effect waves-light red"
+                                        onClick={() => handleStatusChange('rejected')}
+                                        disabled={loading}
+                                        style={{ marginLeft: '10px' }}
+                                    >
+                                        {loading ? 'Отклонение...' : 'Отклонить заявку'}
+                                    </button>
+                                </>
                             )}
                         </div>
                     </div>

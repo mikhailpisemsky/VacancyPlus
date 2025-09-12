@@ -26,7 +26,7 @@ export const StudentPage = () => {
 
     const submitHandler = async () => {
         try {
-            const data = await request('http://localhost:5000/api/student/setting', 'POST', { ...form }, {
+            const data = await request('http://localhost:5000/api/information/student/setting', 'POST', { ...form }, {
                 Authorization: `Bearer ${auth.token}`
             })
             message(data.message)
@@ -38,7 +38,7 @@ export const StudentPage = () => {
 
     const fetchStudent = useCallback(async () => {
         try {
-            const data = await request('http://localhost:5000/api/student', 'GET', null, {
+            const data = await request('http://localhost:5000/api/information/student', 'GET', null, {
                 Authorization: `Bearer ${auth.token}`
             });
             if (data) {

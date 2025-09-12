@@ -234,7 +234,7 @@ router.get('/:id', auth, async (req, res) => {
             include: [
                 {
                     model: db.StudentApplication,
-                    as: 'studentApplications', // Используем правильное имя ассоциации
+                    as: 'studentApplications',
                     where: { studentId: student.studentId },
                     required: true
                 },
@@ -287,7 +287,12 @@ router.get('/:id', auth, async (req, res) => {
                 applicationId: application.applicationId,
                 applicationStatus: application.applicationStatus,
                 createdAt: application.createdAt,
-                vacancyId: application.vacancy?.vacancyId,
+                student: {
+                    name: student.name,
+                    email: student.email,
+                    phone: student.phone,
+                    resumeStatus: student.resumeStatus
+                },
                 vacancy: application.vacancy ? {
                     position: application.vacancy.position?.position || 'Не указано',
                     type: application.vacancy.vacancyType,

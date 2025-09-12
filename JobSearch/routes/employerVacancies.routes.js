@@ -3,6 +3,7 @@ const auth = require('../middleware/auth.middleware');
 const db = require('../models');
 const router = Router();
 
+//Просмотр работодателем своих вакансий
 router.get('/my-vacancies', auth, async (req, res) => {
     try {
         if(req.user.status !== 'employer') {
