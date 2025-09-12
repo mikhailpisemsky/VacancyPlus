@@ -41,7 +41,13 @@ export const VacancyPage = () => {
     const fetchVacancy = async () => {
         try {
             setIsLoading(true);
-            const data = await request(`http://localhost:5000/api/vacancies/${id}`, 'GET');
+
+            const headers = {};
+            if (auth.token) {
+                headers.Authorization = `Bearer ${auth.token}`;
+            }
+
+            const data = await request(`http://localhost:5000/api/vacancies/${id}`, 'GET', null, headers);
             setVacancy(data);
 
             if (auth.userStatus === 'student' && auth.token) {
@@ -49,6 +55,7 @@ export const VacancyPage = () => {
             }
         } catch (e) {
             console.error('Ошибка загрузки вакансии:', e);
+            message('Ошибка загрузки вакансии');
         } finally {
             setIsLoading(false);
         }
