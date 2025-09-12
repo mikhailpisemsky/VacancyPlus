@@ -27,7 +27,6 @@ export const EmployersVacanciesPage = () => {
 
         if (min === 0 && max === 0) return 'Нет данных';
         if (min === 0) return `до ${formatNumber(max)} ₽`;
-        if (max === 0) return `от ${formatNumber(min)} ₽`;
         return `от ${formatNumber(min)} до ${formatNumber(max)} ₽`;
     };
 

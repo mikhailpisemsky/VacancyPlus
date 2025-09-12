@@ -38,8 +38,10 @@ app.use(cors({
 
 const authRoutes = require('./routes/auth.routes');
 app.use('/api/auth', authRoutes);
-const settingStudent = require('./routes/setting.routes')
-app.use('/api/information', settingStudent);
+const settingStudent = require('./routes/settingStudent.routes')
+app.use('/api/student', settingStudent);
+const settingEmployer = require('./routes/settingEmployer.routes')
+app.use('/api/employer', settingEmployer);
 const vacanciRoutes = require('./routes/vacancy.routes')
 app.use('/api/vacancies', vacanciRoutes)
 const empVacanciRoutes = require('./routes/employerVacancies.routes')

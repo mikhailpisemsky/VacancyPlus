@@ -112,6 +112,7 @@ export const CreateVacancyPage = () => {
                         <span className="card-title center-align">Создание вакансии</span>
 
                         <div className="row">
+                            {/* Поле названия позиции */}
                             <div className="input-field col s12">
                                 <input
                                     placeholder="Например: Системный аналитик"
@@ -164,6 +165,7 @@ export const CreateVacancyPage = () => {
                                 <label htmlFor="max_salary" className="white-text active">Максимальная зарплата</label>
                             </div>
 
+                            {/* Поле описания вакансии */}
                             <div className="input-field col s12">
                                 <textarea
                                     placeholder="Опишите обязанности, требования и условия работы"
@@ -176,6 +178,7 @@ export const CreateVacancyPage = () => {
                                 <label htmlFor="vacancyDescription" className="white-text active">Описание вакансии</label>
                             </div>
 
+                            {/* Поле выбора типа вакансии */}
                             <div className="input-field col s12">
                                 <select
                                     name="vacancyType"
@@ -183,7 +186,7 @@ export const CreateVacancyPage = () => {
                                     onChange={changeHandler}
                                     className="browser-default blue white-text"
                                 >
-                                    <option value="" disabled>Выберите уровень занятости</option>
+                                    <option value="" disabled>Выберите тип вакансии</option>
                                     <option value="полная занятость">Полная занятость</option>
                                     <option value="частичная занятость">Частичная занятость</option>
                                     <option value="удалённая работа">Удалённая работа</option>
