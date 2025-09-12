@@ -48,6 +48,11 @@ module.exports = (sequelize, DataTypes) => {
             otherKey: 'studentId',
             as: 'applicants'
         });
+
+        Application.hasMany(models.StudentApplication, {
+            foreignKey: 'applicationId',
+            as: 'studentApplications'
+        });
     };
 
     return Application;

@@ -26,7 +26,7 @@ export const EmployerPage = () => {
 
     const submitHandler = async () => {
         try {
-            const data = await request('http://localhost:5000/api/employer/setting', 'POST', { ...form }, {
+            const data = await request('http://localhost:5000/api/information/employer/setting', 'POST', { ...form }, {
                 Authorization: `Bearer ${auth.token}`
             })
             message(data.message)
@@ -38,7 +38,7 @@ export const EmployerPage = () => {
 
     const fetchStudent = useCallback(async () => {
         try {
-            const data = await request('http://localhost:5000/api/employer', 'GET', null, {
+            const data = await request('http://localhost:5000/api/information/employer', 'GET', null, {
                 Authorization: `Bearer ${auth.token}`
             });
             if (data) {

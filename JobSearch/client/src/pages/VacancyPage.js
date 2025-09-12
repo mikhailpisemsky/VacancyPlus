@@ -90,7 +90,7 @@ export const VacancyPage = () => {
                     { Authorization: `Bearer ${auth.token}` }
                 );
                 message('Вакансия успешно удалена');
-                navigate('/employer-vacancies');
+                navigate('/empvacancies');
             }
         } catch (e) {
             message(e.message || 'Ошибка при удалении вакансии');
@@ -146,7 +146,7 @@ export const VacancyPage = () => {
                                 <h6>Основная информация</h6>
 
                                 <div>
-                                    <p><strong>Тип работы:</strong> {vacancy.type}</p>
+                                    <p><strong>Уровень занятости:</strong> {vacancy.type}</p>
                                     <p><strong>Зарплата:</strong> {formatSalary(vacancy.minSalary, vacancy.maxSalary)}</p>
                                     <p><strong>Дата создания:</strong> {new Date(vacancy.createdAt).toLocaleDateString('ru-RU')}</p>
                                 </div>
