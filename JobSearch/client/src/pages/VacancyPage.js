@@ -63,6 +63,10 @@ export const VacancyPage = () => {
 
     const handleApply = async () => {
         try {
+            console.log('Начало отправки отклика...');
+            console.log('Vacancy ID:', id);
+            console.log('Token exists:', !!auth.token);
+
             await request(
                 'http://localhost:5000/api/applications',
                 'POST',

@@ -8,7 +8,12 @@ module.exports = (sequelize, DataTypes) => {
 
         vacancyId: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            references: {
+                model: 'vacancies',
+                key: 'vacancyId'
+            },
+            onDelete: 'CASCADE'
         },
 
         applicationStatus: {
@@ -30,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
             timestamps: true,
         });
 
+
     Application.associate = (models) => {
         Application.belongsTo(models.Vacancy, {
             foreignKey: 'vacancyId',
@@ -39,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
         Application.belongsToMany(models.Student, {
             through: models.StudentApplication,
             foreignKey: 'applicationId',
+            otherKey: 'studentId',
             as: 'applicants'
         });
     };

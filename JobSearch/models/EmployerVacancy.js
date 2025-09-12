@@ -2,14 +2,24 @@ module.exports = (sequelize, DataTypes) => {
     const EmployerVacancy = sequelize.define('EmployerVacancy', {
         vacancyId: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: 'vacancies',
+                key: 'vacancyId'
+            },
+            onDelete: 'CASCADE'
         },
 
         employerId: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
             allowNull: false,
+            primaryKey: true,
+            references: {
+                model: 'employers',
+                key: 'employerId'
+            },
+            onDelete: 'CASCADE'
         },
     },
         {

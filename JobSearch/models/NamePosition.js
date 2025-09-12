@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         positionId: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
-            primaryKey: true,
+            primaryKey: true
         },
 
         position: {
@@ -16,6 +16,13 @@ module.exports = (sequelize, DataTypes) => {
             tableName: 'positions',
             timestamps: false,
         });
+
+    NamePosition.associate = (models) => {
+        NamePosition.hasMany(models.Vacancy, {
+            foreignKey: 'positionId',
+            as: 'vacancies'
+        });
+    };
 
     return NamePosition;
 }

@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
             references: {
                 model: 'users',
                 key: 'id'
-            }
+            },
+            onDelete: 'CASCADE'
         },
 
         studentId: {
@@ -24,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
 
         name: {
             type: DataTypes.STRING,
+            allowNull: true
         },
 
         phone: {
@@ -48,22 +50,19 @@ module.exports = (sequelize, DataTypes) => {
         });
 
     Student.associate = (models) => {
+        Student.belongsTo(models.User, {
+            foreignKey: 'userId',
+            as: 'user'
+        });
         Student.hasOne(models.Resume, {
             foreignKey: 'studentId',
-            as: 'resume',
-            onDelete: 'CASCADE'
+            as: 'resume'
         });
-
-        Student.hasMany(models.StudentSkill, {
+        Student.belongsToMany(models.Application, {
+            through: models.StudentApplication,
             foreignKey: 'studentId',
-            as: 'skills',
-            onDelete: 'CASCADE'
-        });
-
-        Student.hasMany(models.StudentApplication, {
-            foreignKey: 'studentId',
-            as: 'applications',
-            onDelete: 'CASCADE'
+            otherKey: 'applicationId',
+            as: 'applications'
         });
     };
 

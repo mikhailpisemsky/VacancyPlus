@@ -49,7 +49,7 @@ app.use('/api/empvacancies', empVacanciRoutes)
 const searchRoutes = require('./routes/search.routes');
 app.use('/api/search', searchRoutes);
 const applicationRoutes = require('./routes/application.routes');
-app.use('/api/application', applicationRoutes);
+app.use('/api/applications', applicationRoutes);
 
 app.get('/api/test', (req, res) => {
     res.json({ message: "API работает!" });

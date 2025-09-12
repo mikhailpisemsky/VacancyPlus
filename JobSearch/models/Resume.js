@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'students', // Убедитесь, что имя таблицы в нижнем регистре
+                model: 'students',
                 key: 'studentId'
             },
             onDelete: 'CASCADE'
@@ -17,9 +17,15 @@ module.exports = (sequelize, DataTypes) => {
     },
         {
             tableName: 'resume',
-            timestamps: false,
-            createdAt: false,
+            timestamps: false
         });
+
+    Resume.associate = (models) => {
+        Resume.belongsTo(models.Student, {
+            foreignKey: 'studentId',
+            as: 'student'
+        });
+    };
 
     return Resume;
 };

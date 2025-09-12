@@ -15,6 +15,13 @@
     <PackageJsonAuthor Condition="$(PackageJsonAuthor) == ''">Mikhail Pisemsky &lt;mikhailpisemsky@yandex.ru&gt;</PackageJsonAuthor>
     <PackageJsonType Condition="$(PackageJsonType) == ''">commonjs</PackageJsonType>
     <PackageJsonMain Condition="$(PackageJsonMain) == ''">app.js</PackageJsonMain>
+    <PackageJsonScriptsMigrateInit Condition="$(PackageJsonScriptsMigrateInit) == ''">npx sequelize-cli db:migrate --migration-name init-database</PackageJsonScriptsMigrateInit>
+    <PackageJsonScriptsMigrateFix Condition="$(PackageJsonScriptsMigrateFix) == ''">npx sequelize-cli db:migrate --migration-name fix-students-application</PackageJsonScriptsMigrateFix>
+    <PackageJsonScriptsMigrateUndo Condition="$(PackageJsonScriptsMigrateUndo) == ''">npx sequelize-cli db:migrate:undo</PackageJsonScriptsMigrateUndo>
+    <PackageJsonScriptsMigrateUndoAll Condition="$(PackageJsonScriptsMigrateUndoAll) == ''">npx sequelize-cli db:migrate:undo:all</PackageJsonScriptsMigrateUndoAll>
+    <PackageJsonScriptsMigrateStatus Condition="$(PackageJsonScriptsMigrateStatus) == ''">npx sequelize-cli db:migrate:status</PackageJsonScriptsMigrateStatus>
+    <PackageJsonScriptsMigrateCreate Condition="$(PackageJsonScriptsMigrateCreate) == ''">npx sequelize-cli migration:generate --name</PackageJsonScriptsMigrateCreate>
+    <PackageJsonScriptsDbReset Condition="$(PackageJsonScriptsDbReset) == ''">npx sequelize-cli db:migrate:undo:all &amp;&amp; npx sequelize-cli db:migrate</PackageJsonScriptsDbReset>
     <PackageJsonScriptsStart Condition="$(PackageJsonScriptsStart) == ''">node app.js</PackageJsonScriptsStart>
     <PackageJsonScriptsServer Condition="$(PackageJsonScriptsServer) == ''">nodemon app.js</PackageJsonScriptsServer>
     <PackageJsonScriptsClient Condition="$(PackageJsonScriptsClient) == ''">npm run start --prefix client</PackageJsonScriptsClient>

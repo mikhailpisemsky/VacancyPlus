@@ -26,7 +26,12 @@ module.exports = (sequelize, DataTypes) => {
 
         positionId: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            references: {
+                model: 'positions',
+                key: 'positionId'
+            },
+            onDelete: 'CASCADE'
         },
 
         companyName: {
@@ -61,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
 
         createdAt: {
             type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW, // Автоматическая установка времени создания
+            defaultValue: DataTypes.NOW,
             allowNull: false
         },
     },
@@ -74,7 +79,7 @@ module.exports = (sequelize, DataTypes) => {
         Vacancy.belongsTo(models.NamePosition, {
             foreignKey: 'positionId',
             as: 'position',
-            onDelete: 'RESTRICT' // Не удаляем позицию при удалении вакансии
+            onDelete: 'RESTRICT'
         });
 
         Vacancy.hasMany(models.NecessarySkill, {

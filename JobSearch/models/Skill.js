@@ -14,23 +14,24 @@ module.exports = (sequelize, DataTypes) => {
     },
         {
             tableName: 'skills',
-            timestamps: false,
-            createdAt: false,
+            timestamps: false
         });
 
     Skill.associate = (models) => {
-        Skill.hasMany(models.StudentSkill, {
+        Skill.belongsToMany(models.Vacancy, {
+            through: models.NecessarySkill,
             foreignKey: 'skillId',
-            as: 'studentAssociations',
-            onDelete: 'CASCADE'
+            otherKey: 'vacancyId',
+            as: 'vacancies'
         });
-
-        Skill.hasMany(models.NecessarySkill, {
+        Skill.belongsToMany(models.Student, {
+            through: models.StudentSkill,
             foreignKey: 'skillId',
-            as: 'vacancyRequirements',
-            onDelete: 'CASCADE'
+            otherKey: 'studentId',
+            as: 'students'
         });
     };
+
 
     return Skill;
 };

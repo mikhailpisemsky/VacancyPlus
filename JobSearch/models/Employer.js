@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
             references: {
                 model: 'users',
                 key: 'id'
-            }
+            },
+            onDelete: 'CASCADE'
         },
 
         employerId: {
@@ -25,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
 
         name: {
             type: DataTypes.STRING,
+            allowNull: true
         },
 
         phone: {
@@ -41,18 +43,17 @@ module.exports = (sequelize, DataTypes) => {
         });
 
     Employer.associate = (models) => {
-        Employer.hasMany(models.EmployerVacancy, {
-            foreignKey: 'employerId',
-            as: 'postedVacancies',
-            onDelete: 'CASCADE'
+        Employer.belongsTo(models.User, {
+            foreignKey: 'userId',
+            as: 'user'
         });
-
         Employer.belongsToMany(models.Vacancy, {
             through: models.EmployerVacancy,
             foreignKey: 'employerId',
+            otherKey: 'vacancyId',
             as: 'vacancies'
         });
-    }
+    };
 
     return Employer;
 };

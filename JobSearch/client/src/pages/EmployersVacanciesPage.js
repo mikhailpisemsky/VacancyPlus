@@ -188,7 +188,7 @@ export const EmployersVacanciesPage = () => {
                             </p>
                             <button
                                 className="btn waves-effect waves-light blue"
-                                onClick={() => navigate('/create-vacancy')}
+                                onClick={() => navigate('/create')}
                                 style={{ marginTop: '15px' }}
                             >
                                 Создать вакансию
