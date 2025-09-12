@@ -27,6 +27,7 @@ export const useRoutes = isAuthenticated => {
                 <Route path="/vacancies/:id" element={<VacancyPage />} />
                 <Route path="/empvacancies" exact element={<EmployersVacanciesPage />} />
                 <Route path="/create" exact element={<CreateVacancyPage />} />
+                <Route path="*" element={<Navigate to="/main" />} />
             </Routes>
         )
     }
@@ -34,8 +35,7 @@ export const useRoutes = isAuthenticated => {
     return (
         <Routes>
             <Route path="/" exact element={<AuthPage />} />
-            <Route path="*" element={<Navigate to="/" replace={true} />} />*/
-
+            <Route path="*" element={<Navigate to="/" replace={true} />} />
         </Routes>
     )
 }

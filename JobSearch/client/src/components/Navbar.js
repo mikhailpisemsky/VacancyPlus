@@ -54,7 +54,6 @@ export const Navbar = () => {
 
             <ul className="sidenav" id="mobile-demo">
                 <li><NavLink to="/main">Главная</NavLink></li>
-                <li><NavLink to="/search">Поиск вакансий</NavLink></li>
                 {(userStatus === 'student') && <StudentNavbar />}
                 {(userStatus === 'employer') && <EmployerNavbar />}
                 <li><a href="/" onClick={logoutHandeler}>Выйти</a></li>

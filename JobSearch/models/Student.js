@@ -28,8 +28,9 @@ module.exports = (sequelize, DataTypes) => {
 
         phone: {
             type: DataTypes.STRING(255),
+            allowNull: true,
             validate: {
-                is: /^[\+\d\s\-\(\)]{5,20}$/i
+                is: /^(|[\+\d\s\-\(\)]{5,20})$/i
             }
         },
 

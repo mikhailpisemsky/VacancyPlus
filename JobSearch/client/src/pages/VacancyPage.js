@@ -6,83 +6,84 @@ import { useMessage } from '../hooks/message.hook';
 
 export const VacancyPage = () => {
     const { id } = useParams();
-    const { loading, request, error, clearError } = useHttp();
+    const { request, loading } = useHttp();
     const message = useMessage();
     const auth = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [vacancy, setVacancy] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [hasApplied, setHasApplied] = useState(false);
 
     const formatSalary = (min, max) => {
         const formatNumber = (num) => new Intl.NumberFormat('ru-RU').format(num);
 
-        if (min === 0 && max === 0) return 'Не указана';
+        if (min === 0 && max === 0) return 'Нет данных';
         if (min === 0) return `до ${formatNumber(max)} ₽`;
         if (max === 0) return `от ${formatNumber(min)} ₽`;
-        return `${formatNumber(min)} - ${formatNumber(max)} ₽`;
+        return `от ${formatNumber(min)} до ${formatNumber(max)} ₽`;
     };
 
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'created': return { class: 'blue', text: 'Создана' };
-            case 'posted': return { class: 'green', text: 'Опубликована' };
-            case 'closed': return { class: 'grey', text: 'Закрыта' };
-            default: return { class: 'grey', text: status };
+    const checkApplication = async () => {
+        try {
+            const data = await request(
+                `http://localhost:5000/api/applications/check?vacancyId=${id}`,
+                'GET',
+                null,
+                { Authorization: `Bearer ${auth.token}` }
+            );
+            setHasApplied(data.hasApplied);
+        } catch (e) {
+            console.error('Application check error:', e);
         }
     };
 
-    useEffect(() => {
-        const fetchVacancy = async () => {
-            try {
-                const data = await request(
-                    `http://localhost:5000/api/vacancies/${id}`,
-                    'GET',
-                    null,
-                    { Authorization: `Bearer ${auth.token}` }
-                );
-                setVacancy(data);
-            } catch (e) {
-                console.error('Ошибка загрузки вакансии:', e);
-            } finally {
-                setIsLoading(false);
+    const fetchVacancy = async () => {
+        try {
+            setIsLoading(true);
+            const data = await request(`http://localhost:5000/api/vacancies/${id}`, 'GET');
+            setVacancy(data);
+
+            if (auth.userStatus === 'student' && auth.token) {
+                await checkApplication();
             }
-        };
-
-        if (auth.token) {
-            fetchVacancy();
+        } catch (e) {
+            console.error('Ошибка загрузки вакансии:', e);
+        } finally {
+            setIsLoading(false);
         }
-    }, [id, request, auth.token]);
+    };
+
+    const handleApply = async () => {
+        try {
+            await request(
+                'http://localhost:5000/api/applications',
+                'POST',
+                { vacancyId: id },
+                { Authorization: `Bearer ${auth.token}` }
+            );
+            message('Отклик успешно отправлен!');
+            setHasApplied(true);
+        } catch (e) {
+            message(e.message || 'Ошибка при отправке отклика');
+        }
+    };
 
     useEffect(() => {
-        if (error) {
-            message(error);
-            clearError();
-        }
-    }, [error, message, clearError]);
+        fetchVacancy();
+    }, [id, auth.token]);
 
     if (isLoading) {
-        return (
-            <div className="center" style={{ height: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div className="preloader-wrapper big active">
-                    <div className="spinner-layer spinner-blue-only">
-                        <div className="circle-clipper left">
-                            <div className="circle"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+        return <div className="center">Загрузка...</div>;
     }
 
     if (!vacancy) {
         return (
-            <div className="container center" style={{ padding: '40px 0' }}>
+            <div className="container center">
                 <h5>Вакансия не найдена</h5>
                 <button
                     className="btn waves-effect waves-light blue"
                     onClick={() => navigate(-1)}
-                    style={{ marginTop: '20px' }}
                 >
                     Вернуться назад
                 </button>
@@ -90,10 +91,8 @@ export const VacancyPage = () => {
         );
     }
 
-    const status = getStatusBadge(vacancy.status);
-
     return (
-        <div className="container" style={{ padding: '20px', maxWidth: '1200px' }}>
+        <div className="container">
             <div className="card">
                 <div className="card-content">
                     <div className="row" style={{ marginBottom: '20px' }}>
@@ -101,26 +100,24 @@ export const VacancyPage = () => {
                             <button
                                 className="btn-flat waves-effect"
                                 onClick={() => navigate(-1)}
-                                style={{ marginBottom: '20px' }}
                             >
                                 <i className="material-icons left">arrow_back</i>Назад
                             </button>
 
-                            <div className="flex-row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div className="flex-row">
                                 <h4>{vacancy.position}</h4>
-                                <span className={`badge ${status.class}`}>{status.text}</span>
                             </div>
 
-                            <h5 style={{ color: '#2196f3', marginTop: '10px' }}>{vacancy.company}</h5>
+                            <h5>{vacancy.company}</h5>
                         </div>
                     </div>
 
                     <div className="row">
                         <div className="col s12 m6">
-                            <div className="card-panel grey lighten-5" style={{ padding: '20px' }}>
-                                <h6 style={{ fontWeight: 'bold', marginBottom: '15px' }}>Основная информация</h6>
+                            <div className="card-panel grey lighten-5">
+                                <h6>Основная информация</h6>
 
-                                <div style={{ marginBottom: '15px' }}>
+                                <div>
                                     <p><strong>Тип работы:</strong> {vacancy.type}</p>
                                     <p><strong>Зарплата:</strong> {formatSalary(vacancy.minSalary, vacancy.maxSalary)}</p>
                                     <p><strong>Дата создания:</strong> {new Date(vacancy.createdAt).toLocaleDateString('ru-RU')}</p>
@@ -129,9 +126,9 @@ export const VacancyPage = () => {
                         </div>
 
                         <div className="col s12 m6">
-                            <div className="card-panel grey lighten-5" style={{ padding: '20px' }}>
-                                <h6 style={{ fontWeight: 'bold', marginBottom: '15px' }}>Контактная информация</h6>
-                                <p><strong>Контактное лицо:</strong> {vacancy.contactPerson || 'Не указано'}</p>
+                            <div className="card-panel grey lighten-5">
+                                <h6>Контактная информация</h6>
+                                <p><strong>Работодатель:</strong> {vacancy.contactPerson || 'Не указано'}</p>
                                 <p><strong>Email:</strong> {vacancy.contactEmail || 'Не указано'}</p>
                                 <p><strong>Телефон:</strong> {vacancy.contactPhone || 'Не указано'}</p>
                             </div>
@@ -140,20 +137,19 @@ export const VacancyPage = () => {
 
                     <div className="row">
                         <div className="col s12">
-                            <div className="card-panel grey lighten-5" style={{ padding: '20px' }}>
+                            <div className="card-panel grey lighten-5">
                                 <h6 style={{ fontWeight: 'bold', marginBottom: '15px' }}>Описание вакансии</h6>
-                                <div style={{ whiteSpace: 'pre-line' }}>
+                                <div>
                                     {vacancy.description || 'Описание отсутствует'}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="row" style={{ marginTop: '20px' }}>
+                    <div className="row">
                         <div className="col s12">
                             <button
                                 className="btn waves-effect waves-light grey"
-                                style={{ marginLeft: '10px' }}
                                 onClick={() => navigate(-1)}
                                 disabled={loading}
                             >
@@ -161,6 +157,19 @@ export const VacancyPage = () => {
                             </button>
                         </div>
                     </div>
+                    {auth.userStatus === 'student' && (
+                        <div className="center">
+                            <button
+                                className={`btn waves-effect ${hasApplied ? 'grey' : 'green'}`}
+                                onClick={handleApply}
+                                disabled={hasApplied || loading}
+                            >
+                                {hasApplied
+                                    ? 'Отклик отправлен'
+                                    : (loading ? 'Отправка...' : 'Откликнуться на вакансию')}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

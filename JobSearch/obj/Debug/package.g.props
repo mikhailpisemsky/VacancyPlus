@@ -31,6 +31,9 @@
     <PackageJsonDependenciesPath Condition="$(PackageJsonDependenciesPath) == ''">^0.12.7</PackageJsonDependenciesPath>
     <PackageJsonDependenciesPg Condition="$(PackageJsonDependenciesPg) == ''">^8.16.0</PackageJsonDependenciesPg>
     <PackageJsonDependenciesSequelize Condition="$(PackageJsonDependenciesSequelize) == ''">^6.37.7</PackageJsonDependenciesSequelize>
+    <PackageJsonDependenciesSwaggerJsdoc Condition="$(PackageJsonDependenciesSwaggerJsdoc) == ''">^6.2.8</PackageJsonDependenciesSwaggerJsdoc>
+    <PackageJsonDependenciesSwaggerUiExpress Condition="$(PackageJsonDependenciesSwaggerUiExpress) == ''">^5.0.1</PackageJsonDependenciesSwaggerUiExpress>
+    <PackageJsonDependenciesYamljs Condition="$(PackageJsonDependenciesYamljs) == ''">^0.3.0</PackageJsonDependenciesYamljs>
     <PackageJsonDevdependenciesConcurrently Condition="$(PackageJsonDevdependenciesConcurrently) == ''">^9.1.2</PackageJsonDevdependenciesConcurrently>
     <PackageJsonDevdependenciesNodemon Condition="$(PackageJsonDevdependenciesNodemon) == ''">^3.1.10</PackageJsonDevdependenciesNodemon>
   </PropertyGroup>

@@ -1,11 +1,32 @@
 require('./models/index');
 const express = require('express');
 const config = require('config');
-const pool = require('./config/db');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 
-const PORT = config.get('port') || 5000
+const PORT = 5000
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'JobSearch API',
+            version: '1.0.0',
+            description: 'Документация API для системы поиска работы'
+        },
+        servers: [{ url: `http://localhost:${PORT}` }]
+    },
+    apis: [
+        './routes/*.js',
+        './models/*.js'
+    ]
+};
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc(swaggerOptions)));
 
 const cors = require('cors');
 app.use(express.json({ extended: true }))
@@ -27,6 +48,8 @@ const empVacanciRoutes = require('./routes/employerVacancies.routes')
 app.use('/api/empvacancies', empVacanciRoutes)
 const searchRoutes = require('./routes/search.routes');
 app.use('/api/search', searchRoutes);
+const applicationRoutes = require('./routes/application.routes');
+app.use('/api/application', applicationRoutes);
 
 app.get('/api/test', (req, res) => {
     res.json({ message: "API работает!" });
@@ -36,14 +59,13 @@ const db = require('./models/index');
 
 const start = async () => {
     try {
-        await db.sequelize.authenticate();
-        console.log('Подключение к БД успешно');
-
+        await require('./models/index').sequelize.authenticate();
         app.listen(PORT, () => {
-            console.log(`Сервер запущен на порту ${PORT}`);
+            console.log(`Server running on http://localhost:${PORT}`);
+            console.log(`Swagger UI: http://localhost:${PORT}/api-docs`);
         });
     } catch (error) {
-        console.error('Ошибка запуска:', error);
+        console.error('Server startup error:', error);
     }
 };
 

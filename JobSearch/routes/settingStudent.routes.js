@@ -27,16 +27,32 @@ router.post('/setting', auth, async (req, res) => {
     try {
         const { name, phone } = req.body;
 
-        await Student.update(
-            { name, phone },
-            {
-                where: { email: req.user.email },
-                returning: true
-            }
-        );
+        if (name && name.length < 2) {
+            return res.status(400).json({ message: 'ФИО должно быть не менее 2 символов' });
+        }
 
-        return res.status(201).json({ message: 'Данные успешно обновлены' });
+        if (phone && !/^$|^[\+\d\s\-\(\)]{5,20}$/i.test(phone)) {
+            return res.status(400).json({ message: 'Некорректный формат телефона' });
+        }
+
+        const student = await Student.findOne({
+            where: { email: req.user.email }
+        });
+
+        if (!student) {
+            return res.status(404).json({ message: 'Профиль студента не найден' });
+        }
+
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (phone !== undefined) updateData.phone = phone;
+
+        await student.update(updateData);
+
+        return res.status(200).json({ message: 'Данные успешно обновлены' });
+
     } catch (e) {
+        console.error('Ошибка обновления студента:', e);
         return res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' });
     }
 });

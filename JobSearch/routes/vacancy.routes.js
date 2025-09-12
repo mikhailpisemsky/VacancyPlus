@@ -113,6 +113,7 @@ router.post('/add', auth, vacancyValidation, async (req, res) => {
 
 router.get('/:id', auth, async (req, res) => {
     try {
+        console.log(`Запрос вакансии ID: ${req.params.id} от пользователя типа: ${req.user.status}`);
         const userType = req.user.status;
         let vacancy;
 
