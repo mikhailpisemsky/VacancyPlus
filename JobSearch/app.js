@@ -10,23 +10,160 @@ const app = express();
 
 const PORT = 5000
 
-const swaggerOptions = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'JobSearch API',
-            version: '1.0.0',
-            description: 'Документация API для системы поиска работы'
-        },
-        servers: [{ url: `http://localhost:${PORT}` }]
+const swaggerDocument = {
+    openapi: '3.0.0',
+    info: {
+        title: 'API спецификация',
+        version: '1.0.0',
+        description: 'API спецификация сервиса для поиска временной работы или стажировок.'
     },
-    apis: [
-        './routes/*.js',
-        './models/*.js'
-    ]
+    servers: [{ url: `http://localhost:${PORT}` }],
+    tags: [
+        { name: 'Auth', description: 'Аутентификация и авторизация' },
+        { name: 'Vacancies', description: 'Вакансии и стажировки' },
+        { name: 'Applications', description: 'Заявки и отклики' }
+    ],
+    paths: {
+        '/auth/login': {
+            post: {
+                tags: ['Auth'],
+                summary: 'Авторизация пользователя',
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    email: { type: 'string', example: 'student_1@test.ru', format: 'isEmail' },
+                                    password: { type: 'string', example: '123456', format: 'Длина: не менее 6' },
+                                    status: { type: 'string', enum: ['student', 'employer'], description: 'Статус пользователя: студент, работодатель.' }
+                                },
+                                required: ['email', 'password', 'status']
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    '200': {
+                        description: 'Авторизация успешна',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        email: { type: 'string', example: 'student_1@test.ru' },
+                                        password: { type: 'string', example: '123456' },
+                                        status: { type: 'string', example: 'student' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    'default': {
+                        description: 'Неправильные данные при авторизации',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        message: { type: 'string', enum: ['Пользователь не найден', 'Неверный пароль', 'Неверный тип аккаунта'] }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        '/auth/register': {
+            post: {
+                tags: ['Auth'],
+                summary: 'Регистрация нового пользователя.'
+            }
+        },
+        '/vacancies': {
+            get: {
+                tags: ['Vacancies'],
+                summary: 'Получить список вакансий',
+                parameters: [
+                    {
+                        name: 'page',
+                        in: 'query',
+                        description: 'Номер страницы',
+                        schema: { type: 'integer', default: 1 }
+                    },
+                    {
+                        name: 'limit',
+                        in: 'query',
+                        description: 'Количество элементов на странице',
+                        schema: { type: 'integer', default: 10 }
+                    }
+                ],
+                responses: {
+                    '200': {
+                        description: 'Список вакансий',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        vacancies: {
+                                            type: 'array',
+                                            items: {
+                                                type: 'object',
+                                                properties: {
+                                                    id: { type: 'integer' },
+                                                    title: { type: 'string' },
+                                                    description: { type: 'string' },
+                                                    department: { type: 'string' }
+                                                }
+                                            }
+                                        },
+                                        total: { type: 'integer' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    components: {
+        schemas: {
+            User: {
+                type: 'object',
+                properties: {
+                    id: { type: 'integer' },
+                    email: { type: 'string', format: 'email' },
+                    name: { type: 'string' },
+                    role: { type: 'string', enum: ['student', 'employer', 'admin'] }
+                }
+            },
+            Vacancy: {
+                type: 'object',
+                properties: {
+                    id: { type: 'integer' },
+                    title: { type: 'string' },
+                    description: { type: 'string' },
+                    department: { type: 'string' },
+                    requirements: { type: 'string' },
+                    is_active: { type: 'boolean' }
+                }
+            }
+        },
+        securitySchemes: {
+            BearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT'
+            }
+        }
+    }
 };
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc(swaggerOptions)));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const cors = require('cors');
 app.use(express.json({ extended: true }))

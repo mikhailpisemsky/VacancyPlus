@@ -126,7 +126,7 @@ export const EmployersRequestsPage = () => {
                 <div className="card-content">
                     <div className="row" style={{ marginBottom: '20px' }}>
                         <div className="col s12">
-                            <h4>Заявки на мои вакансии</h4>
+                            <h4>Отклики на мои вакансии</h4>
 
                             <div className="row" style={{ marginTop: '20px' }}>
                                 <div className="col s12">

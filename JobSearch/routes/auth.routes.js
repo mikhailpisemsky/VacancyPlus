@@ -108,7 +108,7 @@ router.post(
                     status: user.status
                 },
                 config.get('jwtSecret'),
-                { expiresIn: '5h' }
+                { expiresIn: '1h' }
             );
 
             res.json({ token, userId: user.id, userStatus: user.status });
